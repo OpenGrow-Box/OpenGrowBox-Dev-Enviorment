@@ -1,0 +1,7 @@
+{
+  "name": "ogb-dev-env",
+  "content_in_root": false,
+  "homeassistant": "2024.12.0",
+  "country": "all",
+  "render_readme": true
+}
