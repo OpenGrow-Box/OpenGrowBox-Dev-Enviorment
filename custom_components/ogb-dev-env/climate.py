@@ -69,7 +69,7 @@ class OGBDevClimate(ClimateEntity):
             self._hass.states.async_set(self.entity_id, "off")
             self.async_write_ha_state()
 
-        self._hass.add_job(delayed_off())
+        self._hass.async_create_task(delayed_off())
 
     @property
     def current_temperature(self):
