@@ -3,7 +3,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/OpenGrow-Box/OpenGrowBox-Dev-Enviorment?style=flat-square)](https://github.com/OpenGrow-Box/OpenGrowBox-Dev-Enviorment/stargazers)
 [![GitHub issues](https://img.shields.io/github/issues/OpenGrow-Box/OpenGrowBox-Dev-Enviorment?style=flat-square)](https://github.com/OpenGrow-Box/OpenGrowBox-Dev-Enviorment/issues)
 [![License](https://img.shields.io/badge/license-OGBCL-blue?style=flat-square)](https://github.com/OpenGrow-Box/OpenGrowBox-Dev-Enviorment/blob/main/LICENSE)
-[![HA Version](https://img.shields.io/badge/Home%20Assistant-2024.12.0+-green?style=flat-square)](https://www.home-assistant.io)
+[![HA Version](https://img.shields.io/badge/Home%20Assistant-2025.1.0+-green?style=flat-square)](https://www.home-assistant.io)
 
 **A virtual development environment for OpenGrowBox HA integration testing.** Simulate a complete grow box ecosystem without hardware, enabling safe prototyping of automations, dashboards, and integrations for the [OpenGrowBox HA system](https://github.com/OpenGrow-Box/OpenGrowBox-HA).
 
@@ -20,9 +20,9 @@ This is a **development-only simulator** for the [OpenGrowBox HA](https://github
 
 ## ✨ Features
 
-- **Environmental Simulation**: Realistic model of air/soil conditions with seasonal effects and device interactions
-- **Virtual Devices**: 17 simulated actuators (lights, climate control, irrigation) and sensors
-- **Home Assistant Integration**: Exposes entities as sensors, switches, lights, fans, climate, etc.
+- **Environmental Simulation**: Realistic model of air/soil conditions with seasonal effects, device interactions, and outside weather integration
+- **Virtual Devices**: 20+ simulated actuators (standard lights, special spectrum lights/IR/UV, climate control, irrigation, fans) and sensors
+- **Home Assistant Integration**: Exposes entities as sensors, switches, lights, fans, climate, etc., with proper labeling
 - **Periodic Updates**: Real-time simulation every 30 seconds
 - **Multi-Zone Support**: Assign devices to "Grow Room" area for organized control
 - **No Hardware Required**: Pure software simulation for development and testing
@@ -60,21 +60,21 @@ No YAML configuration needed. The simulator creates a "Grow Room" area and popul
 4. **View Dashboards**: Build Lovelace dashboards with simulated data.
 5. **Debug Integrations**: Test how your setup interacts with OGB-HA features like VPD control.
 
-Example: Toggle the virtual main light and observe temperature/humidity changes in the simulator.
+Example: Toggle the virtual main light and observe temperature/humidity changes in the simulator. Special lights (IR, Red/Blue, UV) include spectrum sensors for advanced testing.
 
 ## 🏗️ How It Works
 
-- **Simulation Engine**: Models environmental dynamics with device effects (e.g., lights increase temperature, heaters raise air temp).
-- **Device Layer**: Defines virtual hardware with properties and controls.
-- **HA Platforms**: Registers entities for monitoring and control.
-- **Updates**: Runs every 30 seconds, applying physics and randomness for realism.
+- **Simulation Engine**: Models environmental dynamics with device effects (e.g., lights increase temperature, heaters raise air temp), VPD, and outside air exchange.
+- **Device Layer**: Defines virtual hardware with properties, controls, and sensors (including spectrum sensors for special lights).
+- **HA Platforms**: Registers entities for monitoring and control with clean naming (e.g., switch.devheater).
+- **Updates**: Runs every 30 seconds, applying physics, randomness, and seasonal/weather effects for realism.
 
 See [main OGB-HA docs](https://github.com/OpenGrow-Box/OpenGrowBox-HA) for how this simulates real systems.
 
 ## 🤝 Contributing
 
 - Report issues or request features in the [main OpenGrowBox HA repo](https://github.com/OpenGrow-Box/OpenGrowBox-HA/issues)
-- For feedback on this dev tool, use the [opencode issues](https://github.com/anomalyco/opencode/issues)
+- For feedback on this dev tool, use GitHub issues here or [opencode issues](https://github.com/anomalyco/opencode/issues)
 
 ## 📄 License
 

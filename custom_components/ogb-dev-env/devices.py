@@ -322,12 +322,9 @@ TEST_DEVICES = {
         "labels": ["Pump"],
         "manufacturer": "OpenGrowBox",
         "model": "Dev OGB Environment",
-        "setters": {
-            "target_ec": {"min": 0, "max": 5000, "unit": "µS/cm", "default": 1200}
-        },
+        "setters": {},
         "state": {
-            "power": False,
-            "target_ec": 1200
+            "power": False
         },
         "sensors": []
     },
