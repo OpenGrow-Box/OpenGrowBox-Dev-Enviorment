@@ -8,7 +8,7 @@ _LOGGER = logging.getLogger(__name__)
 from homeassistant.helpers import selector
 
 AREA_SCHEMA = vol.Schema({
-    vol.Optional("area_name", default="°Demo Room"): str,
+    vol.Optional("area_name", default="Demo Room"): str,
 })
 
 

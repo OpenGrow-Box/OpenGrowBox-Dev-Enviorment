@@ -43,6 +43,7 @@ class OGBDevLight(LightEntity):
 
         # Entity properties
         self._attr_unique_id = f"{device_config['device_id']}_light"
+        self._attr_unique_id = f"dev{device_config['name'].replace('Dev', '').lower()}"
         self._attr_name = device_config["name"]
         self._attr_is_on = False
         self._attr_brightness = 0

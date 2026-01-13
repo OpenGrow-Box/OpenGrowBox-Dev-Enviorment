@@ -16,7 +16,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     for device_key, device_config in TEST_DEVICES.items():
         # Skip devices that have dedicated entities, but keep cooler and dehumidifier for manual control
-        if device_config.get("type") in ["Exhaust", "Intake", "Heater", "Sensor", "Air Sensor"]:
+        if device_config.get("type") in ["Exhaust", "Intake", "Sensor", "Air Sensor"]:
             continue
         # For Light type, skip if has setters (handled by light platform), else create switch
         if device_config.get("type") == "Light" and "setters" in device_config and device_config["setters"]:
@@ -63,13 +63,11 @@ class OGBDevSwitch(SwitchEntity):
         self._state_manager = self._hass.data[DOMAIN][self._entry.entry_id]
         state = self._state_manager.get_device_state(device_key)
         if pump_key:
-            self._state = state.get(pump_key, False)
             self._attr_unique_id = f"{device_config['device_id']}_{pump_key}"
             self._attr_name = f"{device_config['name']} {pump_key.replace('feedpump_', '')}"
         else:
-            self._state = False
-            self._attr_unique_id = f"{device_config['device_id']}_power"
-            self._attr_name = f"{device_config['name']} Power"
+            self._attr_unique_id = f"dev{device_config['name'].replace('Dev', '').lower()}"
+            self._attr_name = f"{device_config['name']}"
         self._attr_is_on = False
 
         # Device info
