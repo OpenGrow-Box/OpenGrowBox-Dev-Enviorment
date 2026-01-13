@@ -114,7 +114,7 @@ class OGBDevSensor(SensorEntity):
             return round(1200.0 + uniform(-50, 50), 2)
         elif sensor_name == "ph":
             return round(6.2 + uniform(-0.1, 0.1), 2)
-        elif sensor_name in ["ir", "red", "blue", "uv"]:
+        elif sensor_name in ["Far Red PPFD", "Red PPFD", "Blue PPFD", "UV Intensity"]:
             return 100 if self._state_manager.get_device_state(self._device_key).get("power", False) else 0
 
         else:

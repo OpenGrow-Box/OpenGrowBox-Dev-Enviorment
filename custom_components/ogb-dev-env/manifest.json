@@ -1,14 +1,15 @@
 {
   "domain": "ogb-dev-env",
   "name": "OGB Dev Environment",
+  "codeowners": [],
   "config_flow": true,
-   "documentation": "https://github.com/OpenGrow-Box/OpenGrowBox-Dev-Enviorment",
+  "dependencies": [],
+  "documentation": "https://github.com/OpenGrow-Box/OpenGrowBox-Dev-Enviorment",
+  "homekit": {},
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/OpenGrow-Box/OpenGrowBox-Dev-Enviorment/issues",
   "requirements": [],
   "ssdp": [],
-  "zeroconf": [],
-  "homekit": {},
-  "dependencies": [],
-  "codeowners": [],
-  "iot_class": "local_polling",
-  "version": "0.0.1"
+  "version": "0.0.1",
+  "zeroconf": []
 }

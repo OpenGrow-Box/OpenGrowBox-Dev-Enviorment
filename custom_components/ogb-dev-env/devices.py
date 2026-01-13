@@ -47,7 +47,7 @@ TEST_DEVICES = {
         ]
     },
     "light_ir": {
-        "name": "DevIRLight",
+        "name": "DevFarRedLight",
         "type": "Light",
         "labels": ["Light"],
         "manufacturer": "OpenGrowBox",
@@ -57,8 +57,7 @@ TEST_DEVICES = {
             "power": False
         },
         "sensors": [
-            {"name": "intensity", "unit": "%", "icon": "mdi:brightness-6"},
-            {"name": "ir", "unit": "µmol/m²/s", "icon": "mdi:waves"}
+            {"name": "Far Red PPFD", "unit": "µmol/m²/s", "icon": "mdi:sun-wireless"}
         ]
     },
     "light_red_blue": {
@@ -72,9 +71,8 @@ TEST_DEVICES = {
             "power": False
         },
         "sensors": [
-            {"name": "intensity", "unit": "%", "icon": "mdi:brightness-6"},
-            {"name": "red", "unit": "µmol/m²/s", "icon": "mdi:palette"},
-            {"name": "blue", "unit": "µmol/m²/s", "icon": "mdi:palette"}
+            {"name": "Red PPFD", "unit": "µmol/m²/s", "icon": "mdi:palette"},
+            {"name": "Blue PPFD", "unit": "µmol/m²/s", "icon": "mdi:palette"}
         ]
     },
     "light_uv": {
@@ -88,8 +86,7 @@ TEST_DEVICES = {
             "power": False
         },
         "sensors": [
-            {"name": "intensity", "unit": "%", "icon": "mdi:brightness-6"},
-            {"name": "uv", "unit": "µW/cm²", "icon": "mdi:sun-wireless"}
+            {"name": "UV Intensity", "unit": "µW/cm²", "icon": "mdi:sun-wireless"}
         ]
     },
     "sensor_main": {
