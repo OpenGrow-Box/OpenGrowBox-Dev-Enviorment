@@ -45,6 +45,7 @@ class OGBDevFan(FanEntity):
         self._attr_unique_id = f"dev{device_config['name'].replace('Dev', '').lower()}"
         self._attr_name = device_config["name"]
         self._attr_is_on = False
+        self._attr_percentage = 0
         self._attr_supported_features = FanEntityFeature.SET_SPEED
 
 
@@ -97,13 +98,8 @@ class OGBDevFan(FanEntity):
         """Turn the fan on."""
         self._state_manager.set_device_state(self._device_key, "power", True)
         if percentage is not None:
-            await self.async_set_percentage(percentage)
-        else:
-            # Set default speed if none provided
-            current_speed = self._state_manager.get_device_state(self._device_key).get("speed", 0)
-            if current_speed == 0:
-                self._state_manager.set_device_state(self._device_key, "speed", 5)
-            self.async_write_ha_state()
+            self._attr_percentage = percentage
+        self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs):
         """Turn the fan off."""
@@ -112,6 +108,7 @@ class OGBDevFan(FanEntity):
 
     async def async_set_percentage(self, percentage: int) -> None:
         """Set the fan speed percentage."""
+        self._attr_percentage = percentage
         if percentage > 0:
             self._state_manager.set_device_state(self._device_key, "power", True)
         else:
