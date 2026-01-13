@@ -88,7 +88,7 @@ class EnvironmentSimulator:
                 temp_contribution += intensity_factor * 3.0 * mult["light"]  # Up to +3°C
 
         # Fans (cooling from air circulation)
-        fan_keys = ["exhaust", "intake", "ventilation", "dumb_exhaust", "dumb_intake"]
+        fan_keys = ["exhaust", "intake", "ventilation_fan", "dumb_exhaust", "dumb_intake"]
         fan_speed_sum = sum(
             (10 if fan_key in ["dumb_exhaust", "dumb_intake"] and device_states.get(fan_key, {}).get("power", False) else
              device_states.get(fan_key, {}).get("speed", 0) if device_states.get(fan_key, {}).get("power", False) else 0)
@@ -128,9 +128,8 @@ class EnvironmentSimulator:
         if device_states.get("co2", {}).get("power", False):
             base_co2_increase = 1.67 * mult["co2"]
             fan_boost = sum(
-                (device_states.get(fan_key, {}).get("speed", 0) / 10) * 0.2
-                for fan_key in ["exhaust", "intake", "ventilation"]
-                if device_states.get(fan_key, {}).get("power", False)
+                0.2 if device_states.get(fan_key, {}).get("power", False) else 0
+                for fan_key in ["exhaust", "intake", "ventilation_fan"]
             )
             delta_co2 += base_co2_increase * (1 + fan_boost)
 

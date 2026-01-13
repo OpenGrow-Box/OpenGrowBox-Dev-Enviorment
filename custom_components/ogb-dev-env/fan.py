@@ -12,7 +12,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     entities = []
 
     for device_key, device_config in TEST_DEVICES.items():
-        if device_config.get("type") in ["Exhaust", "Intake", "Ventilation"]:
+        if device_config.get("type") in ["Exhaust", "Intake"] or device_key == "ventilation_fan":
             fan = OGBDevFan(
                 hass=hass,
                 entry=entry,
@@ -46,8 +46,7 @@ class OGBDevFan(FanEntity):
         self._attr_name = device_config["name"]
         self._attr_is_on = False
 
-        # Fan properties
-        self._attr_supported_features = FanEntityFeature.SET_SPEED | 1 | 2 | 32  # TURN_ON | TURN_OFF | TOGGLE
+
 
         # Device info
         self._attr_device_info = {

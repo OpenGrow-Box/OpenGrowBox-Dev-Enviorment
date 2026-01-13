@@ -107,7 +107,7 @@ class OGBDevSensor(SensorEntity):
             elif "intensity" in device_state:
                 return device_state.get("intensity", 0)
             else:
-                return 0
+                return 100 if device_state.get("power", False) else 0
         elif sensor_name == "moisture":
             return round(55.0 + uniform(-5, 5), 2)  # Add noise
         elif sensor_name == "conductivity":

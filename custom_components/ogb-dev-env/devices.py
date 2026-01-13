@@ -40,11 +40,7 @@ TEST_DEVICES = {
         "state": {
             "power": False
         },
-        "sensors": [
-            {"name": "intensity", "unit": "%", "icon": "mdi:brightness-6"},
-            {"name": "par", "unit": "µmol/m²/s", "icon": "mdi:white-balance-sunny"},
-            {"name": "duty", "unit": "%", "icon": "mdi:lightbulb"}
-        ]
+        "sensors": []
     },
     "light_ir": {
         "name": "DevFarRedLight",
@@ -160,12 +156,9 @@ TEST_DEVICES = {
         "labels": ["Exhaust"],
         "manufacturer": "OpenGrowBox",
         "model": "Dev OGB Environment",
-        "setters": {
-            "speed": {"min": 0, "max": 10, "unit": "", "default": 0}
-        },
+        "setters": {},
         "state": {
-            "power": False,
-            "speed": 0
+            "power": False
         },
         "sensors": [
             {"name": "duty", "unit": "%", "icon": "mdi:fan"}
@@ -177,29 +170,37 @@ TEST_DEVICES = {
         "labels": ["Intake"],
         "manufacturer": "OpenGrowBox",
         "model": "Dev OGB Environment",
-        "setters": {
-            "speed": {"min": 0, "max": 10, "unit": "", "default": 0}
-        },
+        "setters": {},
         "state": {
-            "power": False,
-            "speed": 0
+            "power": False
         },
         "sensors": [
             {"name": "duty", "unit": "%", "icon": "mdi:fan"}
         ]
     },
-    "ventilation": {
+    "ventilation_switch": {
+        "name": "DevVentilationSwitch",
+        "type": "Ventilation",
+        "labels": ["Ventilation"],
+        "manufacturer": "OpenGrowBox",
+        "model": "Dev OGB Environment",
+        "setters": {},
+        "state": {
+            "power": False
+        },
+        "sensors": [
+            {"name": "duty", "unit": "%", "icon": "mdi:fan"}
+        ]
+    },
+    "ventilation_fan": {
         "name": "DevVentilationFan",
         "type": "Ventilation",
         "labels": ["Ventilation"],
         "manufacturer": "OpenGrowBox",
         "model": "Dev OGB Environment",
-        "setters": {
-            "speed": {"min": 0, "max": 10, "unit": "", "default": 0}
-        },
+        "setters": {},
         "state": {
-            "power": False,
-            "speed": 0
+            "power": False
         },
         "sensors": [
             {"name": "duty", "unit": "%", "icon": "mdi:fan"}
