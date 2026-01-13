@@ -83,16 +83,14 @@ TEST_DEVICES = {
     "light_uv": {
         "name": "DevUVLight",
         "type": "Light",
-        "labels": ["Light"],
+        "labels": ["UVLight"],
         "manufacturer": "OpenGrowBox",
         "model": "Dev OGB Environment",
         "setters": {},
         "state": {
             "power": False
         },
-        "sensors": [
-            {"name": "UV Intensity", "unit": "µW/cm²", "icon": "mdi:sun-wireless"}
-        ]
+
     },
     "sensor_main": {
         "name": "DevSoilSensor",
