@@ -56,20 +56,29 @@ TEST_DEVICES = {
             {"name": "Far Red PPFD", "unit": "µmol/m²/s", "icon": "mdi:sun-wireless"}
         ]
     },
-    "light_red_blue": {
-        "name": "DevRedBlueLight",
+    "light_red": {
+        "name": "DevRedLight",
         "type": "Light",
-        "labels": ["Light"],
+        "labels": ["redLight"],
         "manufacturer": "OpenGrowBox",
         "model": "Dev OGB Environment",
         "setters": {},
         "state": {
             "power": False
         },
-        "sensors": [
-            {"name": "Red PPFD", "unit": "µmol/m²/s", "icon": "mdi:palette"},
-            {"name": "Blue PPFD", "unit": "µmol/m²/s", "icon": "mdi:palette"}
-        ]
+
+    },
+    "light_blue": {
+        "name": "DevBlueLight",
+        "type": "Light",
+        "labels": ["redLight"],
+        "manufacturer": "OpenGrowBox",
+        "model": "Dev OGB Environment",
+        "setters": {},
+        "state": {
+            "power": False
+        },
+
     },
     "light_uv": {
         "name": "DevUVLight",
