@@ -64,13 +64,14 @@ class OGBDevLight(LightEntity):
         """Ensure initial state is off."""
         await super().async_added_to_hass()
         self._attr_is_on = False
-        self._hass.states.async_set(self.entity_id, "off")
+        self._attr_brightness = 0
+        self._hass.states.async_set(self.entity_id, "off", {"brightness": 0})
         self.async_write_ha_state()
 
         # Delayed OFF to override HA restoration
         async def delayed_off():
             await asyncio.sleep(10)
-            self._hass.states.async_set(self.entity_id, "off")
+            self._hass.states.async_set(self.entity_id, "off", {"brightness": 0})
             self.async_write_ha_state()
 
         self._hass.async_create_task(delayed_off())
