@@ -46,7 +46,7 @@ class OGBDevFan(FanEntity):
         self._attr_name = device_config["name"]
         self._attr_is_on = False
         self._attr_percentage = 0
-        self._attr_supported_features = FanEntityFeature.SET_SPEED | 32
+        self._attr_supported_features = FanEntityFeature.SET_SPEED | 1 | 2 | 4 | 32
 
 
 
@@ -84,15 +84,6 @@ class OGBDevFan(FanEntity):
         speed = self._state.get("speed", 0)
         return int((speed / 10) * 100)
 
-    async def async_set_percentage(self, percentage):
-        """Set the speed percentage of the fan."""
-        if percentage == 0:
-            await self.async_turn_off()
-        else:
-            speed = int((percentage / 100) * 10)
-            self._state_manager.set_device_state(self._device_key, "speed", speed)
-            self._state_manager.set_device_state(self._device_key, "power", True)
-            self.async_write_ha_state()
 
     async def async_turn_on(self, percentage=None, preset_mode=None, **kwargs):
         """Turn the fan on."""
@@ -102,21 +93,22 @@ class OGBDevFan(FanEntity):
         self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs):
-        """Turn the fan off."""
+        """Turn fan off."""
         self._state_manager.set_device_state(self._device_key, "power", False)
         self.async_write_ha_state()
 
-    async def async_set_percentage(self, percentage: int) -> None:
-        """Set the fan speed percentage."""
+    async def async_set_percentage(self, percentage):
+        """Set to speed percentage."""
         self._attr_percentage = percentage
-        if percentage > 0:
-            self._state_manager.set_device_state(self._device_key, "power", True)
+        if percentage == 0:
+            await self.async_turn_off()
         else:
-            self._state_manager.set_device_state(self._device_key, "power", False)
-        self.async_write_ha_state()
+            self._state_manager.set_device_state(self._device_key, "speed", int(percentage / 10))
+            self._state_manager.set_device_state(self._device_key, "power", True)
+            self.async_write_ha_state()
 
     async def async_toggle(self, **kwargs):
-        """Toggle the fan."""
+        """Toggle fan."""
         if self.is_on:
             await self.async_turn_off()
         else:
