@@ -1,5 +1,6 @@
 """Switch platform for OGB Dev Environment."""
 
+import asyncio
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.config_entries import ConfigEntry
@@ -85,6 +86,14 @@ class OGBDevSwitch(SwitchEntity):
         self._attr_is_on = False
         self._hass.states.async_set(self.entity_id, "off")
         self.async_write_ha_state()
+
+        # Delayed OFF to override HA restoration
+        async def delayed_off():
+            await asyncio.sleep(10)
+            self._hass.states.async_set(self.entity_id, "off")
+            self.async_write_ha_state()
+
+        self._hass.add_job(delayed_off())
 
     @property
     def is_on(self):

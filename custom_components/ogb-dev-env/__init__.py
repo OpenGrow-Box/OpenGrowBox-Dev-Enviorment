@@ -45,6 +45,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             state = hass.states.get(entity_id)
             if state and state.state != "off":
                 hass.states.async_set(entity_id, "off")
+
+    # Additional delay to override HA state restoration
+    await asyncio.sleep(5)
+    for entity_id in hass.states.async_entity_ids():
+        if entity_id.startswith("switch.ogb") or entity_id.startswith("light.ogb") or entity_id.startswith("fan.ogb") or entity_id.startswith("climate.ogb") or entity_id.startswith("humidifier.ogb"):
+            state = hass.states.get(entity_id)
+            if state and state.state != "off":
+                hass.states.async_set(entity_id, "off")
     return True
 
 
@@ -136,7 +144,15 @@ class DevStateManager:
     @callback
     async def _async_update_simulation(self, now):
         """Periodic simulation update."""
-        self.environment = self.environment_simulator.update_environment(self.device_states)
+        # Get outside weather from HA if available
+        weather_data = {"temp": None, "hum": None}
+        weather_entity = self.hass.states.get("weather.home")
+        if weather_entity:
+            weather_data["temp"] = weather_entity.attributes.get("temperature")
+            weather_data["hum"] = weather_entity.attributes.get("humidity")
+        # If not available, weather_data remains None, simulator uses fallback
+
+        self.environment = self.environment_simulator.update_environment(self.device_states, weather_data)
 
         # Notify platforms to update
         # Since sensors pull from config, perhaps modify the config values

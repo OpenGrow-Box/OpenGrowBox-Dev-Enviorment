@@ -46,6 +46,52 @@ TEST_DEVICES = {
             {"name": "duty", "unit": "%", "icon": "mdi:lightbulb"}
         ]
     },
+    "light_ir": {
+        "name": "DevIRLight",
+        "type": "Light",
+        "labels": ["Light"],
+        "manufacturer": "OpenGrowBox",
+        "model": "Dev OGB Environment",
+        "setters": {},
+        "state": {
+            "power": False
+        },
+        "sensors": [
+            {"name": "intensity", "unit": "%", "icon": "mdi:brightness-6"},
+            {"name": "ir", "unit": "µmol/m²/s", "icon": "mdi:waves"}
+        ]
+    },
+    "light_red_blue": {
+        "name": "DevRedBlueLight",
+        "type": "Light",
+        "labels": ["Light"],
+        "manufacturer": "OpenGrowBox",
+        "model": "Dev OGB Environment",
+        "setters": {},
+        "state": {
+            "power": False
+        },
+        "sensors": [
+            {"name": "intensity", "unit": "%", "icon": "mdi:brightness-6"},
+            {"name": "red", "unit": "µmol/m²/s", "icon": "mdi:palette"},
+            {"name": "blue", "unit": "µmol/m²/s", "icon": "mdi:palette"}
+        ]
+    },
+    "light_uv": {
+        "name": "DevUVLight",
+        "type": "Light",
+        "labels": ["Light"],
+        "manufacturer": "OpenGrowBox",
+        "model": "Dev OGB Environment",
+        "setters": {},
+        "state": {
+            "power": False
+        },
+        "sensors": [
+            {"name": "intensity", "unit": "%", "icon": "mdi:brightness-6"},
+            {"name": "uv", "unit": "µW/cm²", "icon": "mdi:sun-wireless"}
+        ]
+    },
     "sensor_main": {
         "name": "DevSoilSensor",
         "type": "Sensor",
@@ -175,6 +221,30 @@ TEST_DEVICES = {
         "sensors": [
             {"name": "co2", "unit": "ppm", "value": 950.0}
         ]
+    },
+    "dumb_exhaust": {
+        "name": "DevDumbExhaustFan",
+        "type": "Dumb Exhaust",
+        "labels": ["Fan"],
+        "manufacturer": "OpenGrowBox",
+        "model": "Dev OGB Environment",
+        "setters": {},
+        "state": {
+            "power": False
+        },
+        "sensors": []
+    },
+    "dumb_intake": {
+        "name": "DevDumbIntakeFan",
+        "type": "Dumb Intake",
+        "labels": ["Fan"],
+        "manufacturer": "OpenGrowBox",
+        "model": "Dev OGB Environment",
+        "setters": {},
+        "state": {
+            "power": False
+        },
+        "sensors": []
     },
     "air_sensor": {
         "name": "DevSensor1",

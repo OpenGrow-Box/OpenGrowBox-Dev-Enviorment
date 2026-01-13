@@ -1,4 +1,5 @@
 """OGB Dev fans."""
+import asyncio
 from homeassistant.components.fan import FanEntity, FanEntityFeature
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -62,6 +63,14 @@ class OGBDevFan(FanEntity):
         self._attr_is_on = False
         self._hass.states.async_set(self.entity_id, "off")
         self.async_write_ha_state()
+
+        # Delayed OFF to override HA restoration
+        async def delayed_off():
+            await asyncio.sleep(10)
+            self._hass.states.async_set(self.entity_id, "off")
+            self.async_write_ha_state()
+
+        self._hass.add_job(delayed_off())
 
     @property
     def is_on(self):

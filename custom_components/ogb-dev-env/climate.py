@@ -1,4 +1,5 @@
 """OGB Dev climate."""
+import asyncio
 from homeassistant.components.climate import ClimateEntity, ClimateEntityFeature, HVACMode, HVACAction
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -61,6 +62,14 @@ class OGBDevClimate(ClimateEntity):
         self._attr_hvac_mode = HVACMode.OFF
         self._hass.states.async_set(self.entity_id, "off")
         self.async_write_ha_state()
+
+        # Delayed OFF to override HA restoration
+        async def delayed_off():
+            await asyncio.sleep(10)
+            self._hass.states.async_set(self.entity_id, "off")
+            self.async_write_ha_state()
+
+        self._hass.add_job(delayed_off())
 
     @property
     def current_temperature(self):
