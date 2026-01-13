@@ -45,16 +45,13 @@ TEST_DEVICES = {
     "light_ir": {
         "name": "DevFarRedLight",
         "type": "Light",
-        "labels": ["Light"],
+        "labels": ["FarRedLight"],
         "manufacturer": "OpenGrowBox",
         "model": "Dev OGB Environment",
         "setters": {},
         "state": {
             "power": False
         },
-        "sensors": [
-            {"name": "Far Red PPFD", "unit": "µmol/m²/s", "icon": "mdi:sun-wireless"}
-        ]
     },
     "light_red": {
         "name": "DevRedLight",
@@ -66,7 +63,6 @@ TEST_DEVICES = {
         "state": {
             "power": False
         },
-
     },
     "light_blue": {
         "name": "DevBlueLight",
@@ -78,7 +74,6 @@ TEST_DEVICES = {
         "state": {
             "power": False
         },
-
     },
     "light_uv": {
         "name": "DevUVLight",
@@ -90,7 +85,6 @@ TEST_DEVICES = {
         "state": {
             "power": False
         },
-
     },
     "sensor_main": {
         "name": "DevSoilSensor",
