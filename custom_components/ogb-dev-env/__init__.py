@@ -36,7 +36,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await device_manager.async_setup_devices()
 
     # Forward to platforms
-    await hass.config_entries.async_forward_entry_setups(entry, ["sensor", "switch", "number", "light", "fan", "climate", "humidifier", "select"])
+    await hass.config_entries.async_forward_entry_setups(entry, ["sensor", "switch", "light", "fan", "climate", "humidifier", "select"])
 
     # Force initial states to off for all entities
     await asyncio.sleep(1)  # Wait for entities to be added
@@ -60,7 +60,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     if entry.entry_id in hass.data.get(DOMAIN, {}):
         await hass.data[DOMAIN][entry.entry_id].async_unload()
-    return await hass.config_entries.async_unload_platforms(entry, ["sensor", "switch", "number", "light", "fan", "climate", "humidifier", "select"])
+    return await hass.config_entries.async_unload_platforms(entry, ["sensor", "switch", "light", "fan", "climate", "humidifier", "select"])
 
 
 class DevDeviceManager:

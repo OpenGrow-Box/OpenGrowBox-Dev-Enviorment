@@ -90,11 +90,11 @@ class EnvironmentSimulator:
             light_state = device_states.get(light_key, {})
             is_on = light_state.get("power", False)
             if light_key == "dumb_light":
-                intensity = 100 if is_on else 0
+                intensity = 255 if is_on else 0
             else:
                 intensity = light_state.get("intensity", 0) if is_on else 0
             if intensity > 0:
-                intensity_factor = intensity / 100
+                intensity_factor = intensity / 255
                 temp_contribution += intensity_factor * 3.0 * mult["light"]  # Up to +3°C
 
         # Fans (cooling from air circulation)
@@ -147,11 +147,11 @@ class EnvironmentSimulator:
             light_state = device_states.get(light_key, {})
             is_on = light_state.get("power", False)
             if light_key == "dumb_light":
-                intensity = 100 if is_on else 0
+                intensity = 255 if is_on else 0
             else:
                 intensity = light_state.get("intensity", 0) if is_on else 0
             if intensity > 0:
-                intensity_factor = intensity / 100
+                intensity_factor = intensity / 255
                 delta_co2 -= intensity_factor * 0.3 * mult["light"]
 
         # Fans (air drying, CO2 dilution)
