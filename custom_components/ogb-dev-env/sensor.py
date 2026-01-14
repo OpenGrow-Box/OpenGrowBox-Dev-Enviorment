@@ -101,7 +101,9 @@ class OGBDevSensor(SensorEntity):
             return round(intensity * 5.3, 2)  # Rough estimate
         elif sensor_name == "duty":
             device_state = self._state_manager.get_device_state(self._device_key)
-            if "speed" in device_state:
+            if "percentage" in device_state:
+                return device_state["percentage"]
+            elif "speed" in device_state:
                 speed = device_state.get("speed", 0)
                 return int((speed / 10) * 100)
             elif "intensity" in device_state:

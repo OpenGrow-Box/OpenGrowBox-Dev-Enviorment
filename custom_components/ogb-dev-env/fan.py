@@ -62,6 +62,7 @@ class OGBDevFan(FanEntity):
         """Ensure initial state is off."""
         await super().async_added_to_hass()
         self._attr_is_on = False
+        self._state_manager.set_device_state(self._device_key, "percentage", 0)
         self._hass.states.async_set(self.entity_id, "off")
         self.async_write_ha_state()
 
@@ -69,6 +70,7 @@ class OGBDevFan(FanEntity):
         async def delayed_off():
             await asyncio.sleep(10)
             self._attr_percentage = 0
+            self._state_manager.set_device_state(self._device_key, "percentage", 0)
             self._hass.states.async_set(self.entity_id, "off")
             self.async_write_ha_state()
 
@@ -91,17 +93,20 @@ class OGBDevFan(FanEntity):
         self._state_manager.set_device_state(self._device_key, "power", True)
         if percentage is not None:
             self._attr_percentage = percentage
+            self._state_manager.set_device_state(self._device_key, "percentage", percentage)
         self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs):
         """Turn fan off."""
         self._state_manager.set_device_state(self._device_key, "power", False)
+        self._state_manager.set_device_state(self._device_key, "percentage", 0)
         self._attr_percentage = 0
         self.async_write_ha_state()
 
     async def async_set_percentage(self, percentage):
         """Set to speed percentage."""
         self._attr_percentage = percentage
+        self._state_manager.set_device_state(self._device_key, "percentage", percentage)
         if percentage == 0:
             await self.async_turn_off()
         else:
