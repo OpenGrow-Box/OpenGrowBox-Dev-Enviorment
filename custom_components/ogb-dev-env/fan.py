@@ -63,7 +63,7 @@ class OGBDevFan(FanEntity):
         await super().async_added_to_hass()
         self._attr_is_on = False
         self._state_manager.set_device_state(self._device_key, "percentage", 0)
-        self._hass.states.async_set(self.entity_id, "off")
+        self._hass.states.async_set(self.entity_id, "off", {"percentage": 0})
         self.async_write_ha_state()
 
         # Delayed OFF to override HA restoration
@@ -71,7 +71,7 @@ class OGBDevFan(FanEntity):
             await asyncio.sleep(10)
             self._attr_percentage = 0
             self._state_manager.set_device_state(self._device_key, "percentage", 0)
-            self._hass.states.async_set(self.entity_id, "off")
+            self._hass.states.async_set(self.entity_id, "off", {"percentage": 0})
             self.async_write_ha_state()
 
         self._hass.async_create_task(delayed_off())
@@ -101,6 +101,7 @@ class OGBDevFan(FanEntity):
         self._state_manager.set_device_state(self._device_key, "power", False)
         self._state_manager.set_device_state(self._device_key, "percentage", 0)
         self._attr_percentage = 0
+        self._hass.states.async_set(self.entity_id, "off", {"percentage": 0})
         self.async_write_ha_state()
 
     async def async_set_percentage(self, percentage):
