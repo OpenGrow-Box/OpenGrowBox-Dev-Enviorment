@@ -2,10 +2,10 @@
 
 # Global environment state for simulation
 ENVIRONMENT = {
-    "air_temperature": 23.5,
-    "air_humidity": 60.0,
-    "soil_temperature": 22.0,
-    "co2_level": 950.0,
+    "air_temperature": 20.0,
+    "air_humidity": 50.0,
+    "soil_temperature": 18.0,
+    "co2_level": 400.0,
     "water_level": 75.0,
     "water_temperature": 18.0,
 }
@@ -99,7 +99,6 @@ TEST_DEVICES = {
         "sensors": [
             {"name": "moisture", "unit": "%", "value": 55.0},
             {"name": "conductivity", "unit": "µS/cm", "value": 1200.0},
-            {"name": "ph", "unit": "", "value": 6.2},
             {"name": "temperature", "unit": "°C", "value": 22.0}
         ]
     },
@@ -216,7 +215,7 @@ TEST_DEVICES = {
             "power": False
         },
         "sensors": [
-            {"name": "co2", "unit": "ppm", "value": 950.0}
+            {"name": "carbondioxide", "unit": "ppm", "value": 950.0}
         ]
     },
     "dumb_exhaust": {
@@ -300,7 +299,9 @@ TEST_DEVICES = {
         },
         "sensors": [
             {"name": "level", "unit": "%", "value": 75.0},
-            {"name": "temperature", "unit": "°C", "value": 18.0}
+            {"name": "temperature", "unit": "°C", "value": 18.0},
+            {"name": "ppm", "unit": "ppm", "value": 700.0},
+            {"name": "ec", "unit": "us", "value": 1.5}
         ]
     },
     "ph_doser": {
@@ -343,6 +344,21 @@ TEST_DEVICES = {
             "feedpump_y": False,
             "feedpump_pp": False,
             "feedpump_pm": False
+        },
+        "sensors": []
+    },
+    "dripper": {
+        "name": "Irrigation Dripper",
+        "type": "Generic",
+        "labels": ["Dripper"],
+        "manufacturer": "OpenGrowBox",
+        "model": "Dev OGB Environment",
+        "setters": {
+            "dripper": {"type": "switch", "default": False}
+        },
+        "state": {
+            "power": False,
+            "dripper": False
         },
         "sensors": []
     }

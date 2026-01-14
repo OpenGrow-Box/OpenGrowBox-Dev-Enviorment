@@ -95,7 +95,7 @@ class OGBDevSensor(SensorEntity):
                 return round(self._state_manager.environment["soil_temperature"], 2)
             else:
                 return round(self._state_manager.environment.get("water_temperature", 0), 2)
-        elif sensor_name == "co2":
+        elif sensor_name == "carbondioxide":
             return round(self._state_manager.environment["co2_level"], 2)
         elif sensor_name == "level":
             return round(self._state_manager.environment["water_level"], 2)
