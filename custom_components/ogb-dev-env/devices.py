@@ -189,9 +189,7 @@ TEST_DEVICES = {
         "state": {
             "power": False
         },
-        "sensors": [
-            {"name": "duty", "unit": "%", "icon": "mdi:fan"}
-        ]
+        "sensors": []
     },
     "ventilation_fan": {
         "name": "DevVentilationFan",
