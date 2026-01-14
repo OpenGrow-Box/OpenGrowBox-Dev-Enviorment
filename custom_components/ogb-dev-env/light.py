@@ -46,7 +46,8 @@ class OGBDevLight(LightEntity):
         self._attr_unique_id = f"dev{device_config['name'].replace('Dev', '').lower()}"
         self._attr_name = device_config["name"]
         self._attr_is_on = False
-        self._attr_brightness = 0
+        intensity = self._state.get("intensity", 0)
+        self._attr_brightness = int((intensity / 100) * 255)
 
         # Light properties
         self._attr_color_mode = ColorMode.BRIGHTNESS
@@ -64,9 +65,9 @@ class OGBDevLight(LightEntity):
         """Ensure initial state is off."""
         await super().async_added_to_hass()
         self._attr_is_on = False
-        self._attr_brightness = 0
-        self._state_manager.set_device_state(self._device_key, "intensity", 0)
-        self._hass.states.async_set(self.entity_id, "off", {"brightness": 0})
+        intensity = self._state.get("intensity", 0)
+        self._attr_brightness = int((intensity / 100) * 255)
+        self._hass.states.async_set(self.entity_id, "off", {"brightness": self._attr_brightness})
         self.async_write_ha_state()
 
         # Delayed OFF to override HA restoration

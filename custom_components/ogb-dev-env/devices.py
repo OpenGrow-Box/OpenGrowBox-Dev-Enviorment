@@ -22,7 +22,7 @@ TEST_DEVICES = {
         },
         "state": {
             "power": False,
-            "intensity": 0
+            "intensity": 20
         },
         "sensors": [
             {"name": "intensity", "unit": "%", "icon": "mdi:brightness-6"},
