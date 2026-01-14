@@ -64,12 +64,14 @@ class OGBDevLight(LightEntity):
         """Ensure initial state is off."""
         await super().async_added_to_hass()
         self._attr_is_on = False
-        self._hass.states.async_set(self.entity_id, "off", {"brightness_pct": 0})
+        self._state_manager.set_device_state(self._device_key, "intensity", 0)
+        self._hass.states.async_set(self.entity_id, "off", {"brightness": 0})
         self.async_write_ha_state()
 
         # Delayed OFF to override HA restoration
         async def delayed_off():
             await asyncio.sleep(10)
+            self._state_manager.set_device_state(self._device_key, "intensity", 0)
             self._hass.states.async_set(self.entity_id, "off", {"brightness": 0})
             self.async_write_ha_state()
 
@@ -94,10 +96,13 @@ class OGBDevLight(LightEntity):
         if "brightness" in kwargs:
             brightness = kwargs["brightness"]
             intensity = int((brightness / 255) * 100)
-            self._state_manager.set_device_state(self._device_key, "intensity", intensity)
+        else:
+            intensity = 100  # Default to full intensity
+        self._state_manager.set_device_state(self._device_key, "intensity", intensity)
         self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs):
         """Turn the light off."""
         self._state_manager.set_device_state(self._device_key, "power", False)
+        self._state_manager.set_device_state(self._device_key, "intensity", 0)
         self.async_write_ha_state()

@@ -94,7 +94,7 @@ class OGBDevSensor(SensorEntity):
         elif sensor_name == "level":
             return round(self._state_manager.environment["water_level"], 2)
         elif sensor_name == "intensity":
-            return 100 if self._state_manager.get_device_state(self._device_key).get("power", False) else 0
+            return self._state_manager.get_device_state(self._device_key).get("intensity", 0)
         elif sensor_name == "par":
             # Simulate PAR based on intensity
             intensity = self._state_manager.get_device_state(self._device_key).get("intensity", 0)
