@@ -30,12 +30,12 @@ class OGBDevSeasonSelect(SelectEntity, RestoreEntity):
         self._hass = hass
         self._entry = entry
         self._state_manager = self._hass.data[DOMAIN][self._entry.entry_id]
-        self._current_option = None
+        self._current_option = "summer"
 
         # Entity properties
         self._attr_unique_id = f"ogb_dev_env_season_{self._entry.entry_id}"
         self._attr_name = "OGB Dev Season"
-        self._attr_options = ["spring", "summer", "fall", "winter"]
+        self._attr_options = ["spring", "spring_dry", "spring_wet", "summer", "summer_dry", "summer_wet", "fall", "fall_dry", "fall_wet", "winter", "winter_dry", "winter_wet"]
         self._attr_current_option = self._current_option
 
         # Device info

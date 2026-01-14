@@ -6,21 +6,30 @@ class EnvironmentSimulator:
     """Simulates grow box environment with seasonal variations."""
 
     def __init__(self):
-        self.season = "spring"
+        self.season = "summer"
+        season_data = self.ambient_bases[self.season]
         self.environment = {
-            "air_temperature": 23.5,
-            "air_humidity": 60.0,
+            "air_temperature": season_data["temp"],
+            "air_humidity": season_data["hum"],
             "soil_temperature": 22.0,
             "co2_level": 950.0,
             "water_level": 75.0,
             "water_temperature": 18.0,
         }
-        # Ambient temperature base values by season
+        # Ambient temperature and humidity base values by season
         self.ambient_bases = {
-            "spring": 20.0,
-            "summer": 25.0,
-            "fall": 15.0,
-            "winter": 10.0,
+            "spring": {"temp": 20.0, "hum": 65.0},
+            "spring_dry": {"temp": 23.0, "hum": 45.0},
+            "spring_wet": {"temp": 17.0, "hum": 85.0},
+            "summer": {"temp": 25.0, "hum": 60.0},
+            "summer_dry": {"temp": 28.0, "hum": 40.0},
+            "summer_wet": {"temp": 22.0, "hum": 80.0},
+            "fall": {"temp": 18.0, "hum": 70.0},
+            "fall_dry": {"temp": 21.0, "hum": 50.0},
+            "fall_wet": {"temp": 15.0, "hum": 90.0},
+            "winter": {"temp": 10.0, "hum": 75.0},
+            "winter_dry": {"temp": 13.0, "hum": 55.0},
+            "winter_wet": {"temp": 7.0, "hum": 95.0},
         }
         self.ambient_temperature = self.ambient_bases[self.season]
 
@@ -51,7 +60,8 @@ class EnvironmentSimulator:
         mult = season_multipliers.get(self.season, season_multipliers["spring"])
 
         # Update ambient temperature with seasonal base and random variation
-        self.ambient_temperature = self.ambient_bases.get(self.season, 18.0) + uniform(-1.0, 1.0)
+        season_data = self.ambient_bases.get(self.season, {"temp": 25.0, "hum": 60.0})
+        self.ambient_temperature = season_data["temp"] + uniform(-1.0, 1.0)
 
         # Update outside weather
         if weather_data and weather_data.get("temp") is not None:
