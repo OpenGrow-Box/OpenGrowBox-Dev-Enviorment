@@ -66,7 +66,10 @@ class OGBDevSwitch(SwitchEntity):
             self._attr_unique_id = f"{device_config['device_id']}_{pump_key}"
             self._attr_name = f"{device_config['name']} {pump_key.replace('feedpump_', '')}"
         else:
-            self._attr_unique_id = f"dev{device_config['name'].replace('Dev', '').lower()}"
+            if "Dumb" in device_config['name']:
+                self._attr_unique_id = f"dev{device_config['name'].replace('DevDumb', 'dumb').replace('Fan', '').lower()}"
+            else:
+                self._attr_unique_id = f"dev{device_config['name'].replace('Dev', '').lower()}"
             self._attr_name = f"{device_config['name']}"
         self._attr_is_on = False
 
