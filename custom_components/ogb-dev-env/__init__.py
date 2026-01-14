@@ -134,10 +134,11 @@ class DevStateManager:
         """Get state for a device."""
         return self.device_states.get(device_key, {})
 
-    def set_device_state(self, device_key, key, value):
+    async def set_device_state(self, device_key, key, value):
         """Set state for a device."""
         if device_key in self.device_states:
             self.device_states[device_key][key] = value
+        await self._async_update_simulation(None)
 
 
 

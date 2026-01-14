@@ -63,8 +63,8 @@ class OGBDevFan(FanEntity):
         """Ensure initial state is off."""
         await super().async_added_to_hass()
         self._attr_is_on = False
-        self._state_manager.set_device_state(self._device_key, "percentage", 0)
-        self._state_manager.set_device_state(self._device_key, "speed", 0)
+        await self._state_manager.set_device_state(self._device_key, "percentage", 0)
+        await self._state_manager.set_device_state(self._device_key, "speed", 0)
         self._hass.states.async_set(self.entity_id, "off", {"percentage": 0})
         self.async_write_ha_state()
 
@@ -81,35 +81,30 @@ class OGBDevFan(FanEntity):
 
     async def async_turn_on(self, percentage=None, preset_mode=None, **kwargs):
         """Turn the fan on."""
-        self._state_manager.set_device_state(self._device_key, "power", True)
+        await self._state_manager.set_device_state(self._device_key, "power", True)
         if percentage is not None:
             self._attr_percentage = percentage
-            self._state_manager.set_device_state(self._device_key, "percentage", percentage)
-        else:
-            self._attr_percentage = 100
-            self._state_manager.set_device_state(self._device_key, "percentage", 100)
+            await self._state_manager.set_device_state(self._device_key, "percentage", percentage)
         self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs):
         """Turn fan off."""
-        self._state_manager.set_device_state(self._device_key, "power", False)
-        self._state_manager.set_device_state(self._device_key, "percentage", 0)
-        self._state_manager.set_device_state(self._device_key, "speed", 0)
+        await self._state_manager.set_device_state(self._device_key, "power", False)
+        await self._state_manager.set_device_state(self._device_key, "percentage", 0)
         self._attr_percentage = 0
-        self._hass.states.async_set(self.entity_id, "off", {"percentage": 0})
         self.async_write_ha_state()
 
     async def async_set_percentage(self, percentage):
         """Set to speed percentage."""
         self._attr_percentage = percentage
-        self._state_manager.set_device_state(self._device_key, "percentage", percentage)
+        await self._state_manager.set_device_state(self._device_key, "percentage", percentage)
         if percentage == 0:
-            self._state_manager.set_device_state(self._device_key, "power", False)
+            await self._state_manager.set_device_state(self._device_key, "power", False)
             self._attr_is_on = False
             self._hass.states.async_set(self.entity_id, "off")
         else:
-            self._state_manager.set_device_state(self._device_key, "speed", int(percentage / 10))
-            self._state_manager.set_device_state(self._device_key, "power", True)
+            await self._state_manager.set_device_state(self._device_key, "speed", int(percentage / 10))
+            await self._state_manager.set_device_state(self._device_key, "power", True)
             self._attr_is_on = True
         self.async_write_ha_state()
         print(f"Fan {self._device_key} set to {percentage}%")

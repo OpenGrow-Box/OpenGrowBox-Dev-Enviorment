@@ -98,11 +98,11 @@ class OGBDevSwitch(SwitchEntity):
     async def async_turn_on(self, **kwargs):
         """Turn the switch on."""
         key = self._pump_key or "power"
-        self._state_manager.set_device_state(self._device_key, key, True)
+        await self._state_manager.set_device_state(self._device_key, key, True)
         self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs):
         """Turn the switch off."""
         key = self._pump_key or "power"
-        self._state_manager.set_device_state(self._device_key, key, False)
+        await self._state_manager.set_device_state(self._device_key, key, False)
         self.async_write_ha_state()
