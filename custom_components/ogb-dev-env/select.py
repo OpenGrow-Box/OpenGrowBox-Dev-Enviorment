@@ -1,6 +1,7 @@
 """OGB Dev select."""
 import asyncio
 from homeassistant.components.select import SelectEntity
+from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from .const import DOMAIN
@@ -22,7 +23,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     return True
 
 
-class OGBDevSeasonSelect(SelectEntity):
+class OGBDevSeasonSelect(SelectEntity, RestoreEntity):
     """OGB Dev season select."""
 
     def __init__(self, hass, entry):
@@ -48,6 +49,9 @@ class OGBDevSeasonSelect(SelectEntity):
     async def async_added_to_hass(self):
         """Ensure proper entity registration."""
         await super().async_added_to_hass()
+        if (state := await self.async_get_last_state()) is not None:
+            self._current_option = state.state
+            self._state_manager.environment_simulator.set_season(state.state)
         self.async_write_ha_state()
 
     @property

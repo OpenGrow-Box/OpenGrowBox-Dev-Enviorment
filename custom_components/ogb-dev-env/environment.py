@@ -88,10 +88,9 @@ class EnvironmentSimulator:
                 temp_contribution += intensity_factor * 3.0 * mult["light"]  # Up to +3°C
 
         # Fans (cooling from air circulation)
-        fan_keys = ["exhaust", "intake", "ventilation_fan", "dumb_exhaust", "dumb_intake"]
+        fan_keys = ["exhaust", "intake", "ventilation_fan"]
         fan_speed_sum = sum(
-            (10 if fan_key in ["dumb_exhaust", "dumb_intake"] and device_states.get(fan_key, {}).get("power", False) else
-             device_states.get(fan_key, {}).get("speed", 0) if device_states.get(fan_key, {}).get("power", False) else 0)
+            device_states.get(fan_key, {}).get("speed", 0) if device_states.get(fan_key, {}).get("power", False) else 0
             for fan_key in fan_keys
         )
         if fan_speed_sum > 0:
