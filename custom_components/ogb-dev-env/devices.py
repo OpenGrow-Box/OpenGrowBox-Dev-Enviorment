@@ -99,7 +99,9 @@ TEST_DEVICES = {
         "sensors": [
             {"name": "moisture", "unit": "%", "value": 55.0},
             {"name": "conductivity", "unit": "µS/cm", "value": 1200.0},
-            {"name": "temperature", "unit": "°C", "value": 22.0}
+            {"name": "temperature", "unit": "°C", "value": 22.0},
+            {"name": "soil_temperature", "unit": "°C", "value": 22.0},
+            {"name": "lumen", "unit": "lx", "value": 200.0}
         ]
     },
     "heater": {

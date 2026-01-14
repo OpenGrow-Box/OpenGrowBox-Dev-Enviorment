@@ -120,8 +120,12 @@ class OGBDevSensor(SensorEntity):
             return round(55.0 + uniform(-5, 5), 2)  # Add noise
         elif sensor_name == "conductivity":
             return round(1200.0 + uniform(-50, 50), 2)
-        elif sensor_name == "ph":
-            return round(6.2 + uniform(-0.1, 0.1), 2)
+        elif sensor_name == "soil_temperature":
+            return round(self._state_manager.environment["soil_temperature"], 2)
+        elif sensor_name == "lumen":
+            light_state = self._state_manager.get_device_state("light_main")
+            intensity = light_state.get("intensity", 0) if light_state.get("power", False) else 0
+            return intensity * 10  # Mirror intensity as lumen (0-1000)
         elif sensor_name in ["Far Red PPFD", "Red PPFD", "Blue PPFD", "UV Intensity"]:
             return 100 if self._state_manager.get_device_state(self._device_key).get("power", False) else 0
 
