@@ -45,7 +45,7 @@ TEST_DEVICES = {
     "light_ir": {
         "name": "DevFarRedLight",
         "type": "Light",
-        "labels": ["FarRedLight"],
+        "labels": ["LightFarRed"],
         "manufacturer": "OpenGrowBox",
         "model": "Dev OGB Environment",
         "setters": {},
@@ -56,7 +56,7 @@ TEST_DEVICES = {
     "light_red": {
         "name": "DevRedLight",
         "type": "Light",
-        "labels": ["redLight"],
+        "labels": ["LightRed"],
         "manufacturer": "OpenGrowBox",
         "model": "Dev OGB Environment",
         "setters": {},
@@ -67,7 +67,7 @@ TEST_DEVICES = {
     "light_blue": {
         "name": "DevBlueLight",
         "type": "Light",
-        "labels": ["redLight"],
+        "labels": ["LightBlue"],
         "manufacturer": "OpenGrowBox",
         "model": "Dev OGB Environment",
         "setters": {},
@@ -78,7 +78,7 @@ TEST_DEVICES = {
     "light_uv": {
         "name": "DevUVLight",
         "type": "Light",
-        "labels": ["UVLight"],
+        "labels": ["LightUV"],
         "manufacturer": "OpenGrowBox",
         "model": "Dev OGB Environment",
         "setters": {},
