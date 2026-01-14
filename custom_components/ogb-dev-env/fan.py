@@ -42,7 +42,7 @@ class OGBDevFan(FanEntity):
         self._state = self._state_manager.get_device_state(device_key)
 
         # Entity properties
-        self._attr_unique_id = f"dev{device_config['name'].replace('Dev', '').lower().replace('fan', '_fan')}"
+        self._attr_unique_id = f"dev{device_config['name'].replace('Dev', '').lower()}"
         self._attr_name = device_config["name"]
         self._attr_is_on = False
         self._attr_percentage = 0
@@ -74,9 +74,8 @@ class OGBDevFan(FanEntity):
 
     @property
     def percentage(self):
-        """Return the current speed percentage."""
-        speed = self._state.get("speed", 0)
-        return int((speed / 10) * 100)
+        """Return the current percentage."""
+        return self._attr_percentage
 
 
     async def async_turn_on(self, percentage=None, preset_mode=None, **kwargs):
