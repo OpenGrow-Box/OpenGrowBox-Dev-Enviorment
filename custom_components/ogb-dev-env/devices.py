@@ -195,7 +195,7 @@ TEST_DEVICES = {
     },
     "ventilation_fan": {
         "name": "DevVentilationFan",
-        "type": "Ventilation",
+        "type": "Ventilation Switch",
         "labels": ["Ventilation"],
         "manufacturer": "OpenGrowBox",
         "model": "Dev OGB Environment",

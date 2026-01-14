@@ -12,7 +12,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     entities = []
 
     for device_key, device_config in TEST_DEVICES.items():
-        if device_config.get("type") in ["Exhaust", "Intake"] or device_key == "ventilation_fan":
+        if device_config.get("type") in ["Exhaust", "Intake"]:
             fan = OGBDevFan(
                 hass=hass,
                 entry=entry,
@@ -68,6 +68,7 @@ class OGBDevFan(FanEntity):
         # Delayed OFF to override HA restoration
         async def delayed_off():
             await asyncio.sleep(10)
+            self._attr_percentage = 0
             self._hass.states.async_set(self.entity_id, "off")
             self.async_write_ha_state()
 
@@ -95,6 +96,7 @@ class OGBDevFan(FanEntity):
     async def async_turn_off(self, **kwargs):
         """Turn fan off."""
         self._state_manager.set_device_state(self._device_key, "power", False)
+        self._attr_percentage = 0
         self.async_write_ha_state()
 
     async def async_set_percentage(self, percentage):
