@@ -67,6 +67,12 @@ class OGBDevSensor(SensorEntity):
         return True
 
     @property
+    def scan_interval(self):
+        """Scan interval for faster sensor updates."""
+        from datetime import timedelta
+        return timedelta(seconds=1)
+
+    @property
     def native_value(self):
         """Return the current state."""
         sensor_name = self._sensor_config["name"]
