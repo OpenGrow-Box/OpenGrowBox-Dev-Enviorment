@@ -108,11 +108,13 @@ class OGBDevFan(FanEntity):
         self._attr_percentage = percentage
         self._state_manager.set_device_state(self._device_key, "percentage", percentage)
         if percentage == 0:
-            await self.async_turn_off()
+            self._state_manager.set_device_state(self._device_key, "power", False)
+            self._attr_is_on = False
         else:
             self._state_manager.set_device_state(self._device_key, "speed", int(percentage / 10))
             self._state_manager.set_device_state(self._device_key, "power", True)
-            self.async_write_ha_state()
+            self._attr_is_on = True
+        self.async_write_ha_state()
 
     async def async_toggle(self, **kwargs):
         """Toggle fan."""
