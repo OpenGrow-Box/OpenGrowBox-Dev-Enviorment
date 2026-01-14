@@ -6,16 +6,6 @@ class EnvironmentSimulator:
     """Simulates grow box environment with seasonal variations."""
 
     def __init__(self):
-        self.season = "summer"
-        season_data = self.ambient_bases[self.season]
-        self.environment = {
-            "air_temperature": season_data["temp"],
-            "air_humidity": season_data["hum"],
-            "soil_temperature": 22.0,
-            "co2_level": 950.0,
-            "water_level": 75.0,
-            "water_temperature": 18.0,
-        }
         # Ambient temperature and humidity base values by season
         self.ambient_bases = {
             "spring": {"temp": 20.0, "hum": 65.0},
@@ -30,6 +20,16 @@ class EnvironmentSimulator:
             "winter": {"temp": 10.0, "hum": 75.0},
             "winter_dry": {"temp": 13.0, "hum": 55.0},
             "winter_wet": {"temp": 7.0, "hum": 95.0},
+        }
+        self.season = "summer"
+        season_data = self.ambient_bases[self.season]
+        self.environment = {
+            "air_temperature": season_data["temp"],
+            "air_humidity": season_data["hum"],
+            "soil_temperature": 22.0,
+            "co2_level": 950.0,
+            "water_level": 75.0,
+            "water_temperature": 18.0,
         }
         self.ambient_temperature = self.ambient_bases[self.season]
 
