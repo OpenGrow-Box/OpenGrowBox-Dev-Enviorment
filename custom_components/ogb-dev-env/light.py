@@ -94,12 +94,15 @@ class OGBDevLight(LightEntity):
 
     async def async_turn_on(self, **kwargs):
         """Turn the light on."""
-        self._state_manager.set_device_state(self._device_key, "power", True)
         if "brightness" in kwargs:
             brightness = kwargs["brightness"]
+            if brightness == 0:
+                await self.async_turn_off()
+                return
             intensity = int((brightness / 255) * 100)
         else:
             intensity = 100  # Default to full intensity
+        self._state_manager.set_device_state(self._device_key, "power", True)
         self._state_manager.set_device_state(self._device_key, "intensity", intensity)
         self.async_write_ha_state()
 
@@ -109,3 +112,10 @@ class OGBDevLight(LightEntity):
         self._state_manager.set_device_state(self._device_key, "intensity", 0)
         self._attr_brightness = 0
         self.async_write_ha_state()
+
+    async def async_toggle(self, **kwargs):
+        """Toggle the light."""
+        if self.is_on:
+            await self.async_turn_off()
+        else:
+            await self.async_turn_on()
