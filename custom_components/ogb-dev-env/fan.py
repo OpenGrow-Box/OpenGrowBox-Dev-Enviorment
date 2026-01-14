@@ -110,6 +110,7 @@ class OGBDevFan(FanEntity):
         if percentage == 0:
             self._state_manager.set_device_state(self._device_key, "power", False)
             self._attr_is_on = False
+            self._hass.states.async_set(self.entity_id, "off")
         else:
             self._state_manager.set_device_state(self._device_key, "speed", int(percentage / 10))
             self._state_manager.set_device_state(self._device_key, "power", True)
