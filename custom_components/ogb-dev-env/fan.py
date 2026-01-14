@@ -113,6 +113,8 @@ class OGBDevFan(FanEntity):
             self._attr_is_on = True
         self.async_write_ha_state()
         print(f"Fan {self._device_key} set to {percentage}%")
+        if self._device_key == "intake":
+            print(f"Intake specifically set to {percentage}%")
 
     async def async_toggle(self, **kwargs):
         """Toggle fan."""
