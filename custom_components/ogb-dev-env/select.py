@@ -30,7 +30,7 @@ class OGBDevSeasonSelect(SelectEntity, RestoreEntity):
         self._hass = hass
         self._entry = entry
         self._state_manager = self._hass.data[DOMAIN][self._entry.entry_id]
-        self._current_option = "spring"
+        self._current_option = None
 
         # Entity properties
         self._attr_unique_id = f"ogb_dev_env_season_{self._entry.entry_id}"
@@ -52,6 +52,8 @@ class OGBDevSeasonSelect(SelectEntity, RestoreEntity):
         if (state := await self.async_get_last_state()) is not None:
             self._current_option = state.state
             self._state_manager.environment_simulator.set_season(state.state)
+        else:
+            self._current_option = self._state_manager.environment_simulator.season
         self.async_write_ha_state()
 
     @property
