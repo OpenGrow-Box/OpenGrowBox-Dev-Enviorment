@@ -206,28 +206,13 @@ TEST_DEVICES = {
             {"name": "duty", "unit": "%", "icon": "mdi:fan"}
         ]
     },
-    "co2_sensor": {
-        "name": "Dev CO2 Sensor",
+    "co2": {
+        "name": "Dev CO2 System",
         "type": "Sensor",
         "labels": ["CO2"],
         "manufacturer": "OpenGrowBox",
         "model": "Dev Environment",
-        "device_id": "co2_sensor",
-        "setters": {},
-        "state": {
-            "power": False
-        },
-        "sensors": [
-            {"name": "co2", "unit": "ppm", "value": 950.0}
-        ]
-    },
-    "co2_switch": {
-        "name": "Dev CO2 Control",
-        "type": "Generic",
-        "labels": ["CO2"],
-        "manufacturer": "OpenGrowBox",
-        "model": "Dev Environment",
-        "device_id": "co2_switch",
+        "device_id": "devco2",
         "setters": {
             "co2": {"type": "switch", "default": False}
         },
@@ -235,7 +220,9 @@ TEST_DEVICES = {
             "power": False,
             "co2": False
         },
-        "sensors": []
+        "sensors": [
+            {"name": "co2", "unit": "ppm", "value": 950.0}
+        ]
     },
     "dumb_exhaust": {
         "name": "DevDumbExhaustFan",
