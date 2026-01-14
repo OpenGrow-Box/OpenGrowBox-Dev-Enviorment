@@ -59,14 +59,6 @@ class OGBDevHumidifier(HumidifierEntity):
         self._hass.states.async_set(self.entity_id, "off")
         self.async_write_ha_state()
 
-        # Delayed OFF to override HA restoration
-        async def delayed_off():
-            await asyncio.sleep(10)
-            self._hass.states.async_set(self.entity_id, "off")
-            self.async_write_ha_state()
-
-        self._hass.async_create_task(delayed_off())
-
     @property
     def is_on(self):
         """Return true if humidifier is on."""

@@ -63,14 +63,6 @@ class OGBDevClimate(ClimateEntity):
         self._hass.states.async_set(self.entity_id, "off")
         self.async_write_ha_state()
 
-        # Delayed OFF to override HA restoration
-        async def delayed_off():
-            await asyncio.sleep(10)
-            self._hass.states.async_set(self.entity_id, "off")
-            self.async_write_ha_state()
-
-        self._hass.async_create_task(delayed_off())
-
     @property
     def current_temperature(self):
         """Return the current temperature mirrored from DevSensor1."""
