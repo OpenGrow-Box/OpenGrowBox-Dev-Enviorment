@@ -9,17 +9,17 @@ class EnvironmentSimulator:
         # Ambient temperature and humidity base values by season
         self.ambient_bases = {
             "spring": {"temp": 20.0, "hum": 65.0},
-            "spring_dry": {"temp": 23.0, "hum": 45.0},
-            "spring_wet": {"temp": 17.0, "hum": 85.0},
+            "spring_dry": {"temp": 23.0, "hum": 35.0},
+            "spring_wet": {"temp": 17.0, "hum": 90.0},
             "summer": {"temp": 25.0, "hum": 60.0},
-            "summer_dry": {"temp": 28.0, "hum": 40.0},
-            "summer_wet": {"temp": 22.0, "hum": 80.0},
+            "summer_dry": {"temp": 28.0, "hum": 30.0},
+            "summer_wet": {"temp": 22.0, "hum": 85.0},
             "fall": {"temp": 18.0, "hum": 70.0},
-            "fall_dry": {"temp": 21.0, "hum": 50.0},
-            "fall_wet": {"temp": 15.0, "hum": 90.0},
+            "fall_dry": {"temp": 21.0, "hum": 40.0},
+            "fall_wet": {"temp": 15.0, "hum": 95.0},
             "winter": {"temp": 10.0, "hum": 75.0},
-            "winter_dry": {"temp": 13.0, "hum": 55.0},
-            "winter_wet": {"temp": 7.0, "hum": 95.0},
+            "winter_dry": {"temp": 11.0, "hum": 40.0},
+            "winter_wet": {"temp": 7.0, "hum": 100.0},
         }
         self.season = "summer"
         season_data = self.ambient_bases[self.season]
@@ -69,115 +69,30 @@ class EnvironmentSimulator:
             self.outside_hum = max(0, min(100, weather_data.get("hum", 50) + uniform(-5.0, 5.0)))
             self.outside_co2 = 400.0
         else:
-            base = self.outside_bases[self.season]
+            base_season = self.season.split('_')[0]  # e.g., winter_dry -> winter
+            base = self.outside_bases.get(base_season, self.outside_bases["summer"])
             self.outside_temp = base["temp"] + uniform(-5.0, 5.0)
             self.outside_hum = max(0, min(100, base["hum"] + uniform(-10.0, 10.0)))
             self.outside_co2 = base["co2"]
 
-        # Calculate device contributions to target temperature
-        temp_contribution = 0.0
-
-        # Heater
-        if device_states.get("heater", {}).get("power", False):
-            temp_contribution += 3.0 * mult["heater"]  # +3°C offset
-
-        # Cooler
-        if device_states.get("cooler", {}).get("power", False):
-            temp_contribution -= 3.0 * mult["cooler"]  # -3°C offset
-
-        # Light
-        for light_key in ["light_main", "dumb_light"]:
-            light_state = device_states.get(light_key, {})
-            is_on = light_state.get("power", False)
-            if light_key == "dumb_light":
-                intensity = 255 if is_on else 0
-            else:
-                intensity = light_state.get("intensity", 0) if is_on else 0
-            if intensity > 0:
-                intensity_factor = intensity / 255
-                temp_contribution += intensity_factor * 3.0 * mult["light"]  # Up to +3°C
-
-        # Fans (cooling from air circulation)
-        fan_keys = ["exhaust", "intake", "ventilation_fan"]
-        fan_speed_sum = sum(
-            device_states.get(fan_key, {}).get("speed", 0) if device_states.get(fan_key, {}).get("power", False) else 0
-            for fan_key in fan_keys
-        )
-        if fan_speed_sum > 0:
-            temp_contribution -= (fan_speed_sum / 50) * 0.3 * mult["fan"]  # Max -0.3°C
-
-        # Asymptotic approach for thermal lag
-        target_temp = self.ambient_temperature + temp_contribution
-        approach_rate = 0.05  # 5% toward target per update
+        # Asymptotic approach for temperature (passive, only ambient + outside)
+        target_temp = self.ambient_temperature
+        if weather_data and weather_data.get("temp") is not None:
+            # Outside influence if intake-like, but passive
+            target_temp += (weather_data["temp"] - self.ambient_temperature) * 0.05  # Small outside blend
+        approach_rate = 0.05
         delta_temp = (target_temp - self.environment["air_temperature"]) * approach_rate
 
-        # Other environment deltas (humidity, CO2)
-        delta_hum = 0.0
-        delta_co2 = 0.0
+        # Asymptotic approach for humidity (passive, only season base + outside)
+        season_data = self.ambient_bases.get(self.season, {"temp": 25.0, "hum": 60.0})
+        target_hum = season_data["hum"]
+        if weather_data and weather_data.get("hum") is not None:
+            target_hum += (weather_data["hum"] - season_data["hum"]) * 0.05  # Small outside blend
+        delta_hum = (target_hum - self.environment["air_humidity"]) * approach_rate
 
-        # Heater (air drying)
-        if device_states.get("heater", {}).get("power", False):
-            delta_hum -= 0.01 * mult["heater"]
-
-        # Cooler (dehumidification)
-        if device_states.get("cooler", {}).get("power", False):
-            delta_hum -= 0.02 * mult["cooler"]
-
-        # Humidifier
-        if device_states.get("humidifier", {}).get("power", False):
-            delta_hum += 0.033 * mult["humidifier"]
-            delta_temp += 0.01 * mult["humidifier"]  # Slight heating
-
-        # Dehumidifier
-        if device_states.get("dehumidifier", {}).get("power", False):
-            delta_hum -= 0.033 * mult["dehumidifier"]
-            delta_temp += 0.1 * mult["dehumidifier"]  # Heat generation from hot air output
-
-        # CO2
-        if device_states.get("co2", {}).get("power", False):
-            base_co2_increase = 1.67 * mult["co2"]
-            fan_boost = sum(
-                0.2 if device_states.get(fan_key, {}).get("power", False) else 0
-                for fan_key in ["exhaust", "intake", "ventilation_fan"]
-            )
-            delta_co2 += base_co2_increase * (1 + fan_boost)
-
-        # Light (photosynthesis CO2 depletion)
-        for light_key in ["light_main", "dumb_light"]:
-            light_state = device_states.get(light_key, {})
-            is_on = light_state.get("power", False)
-            if light_key == "dumb_light":
-                intensity = 255 if is_on else 0
-            else:
-                intensity = light_state.get("intensity", 0) if is_on else 0
-            if intensity > 0:
-                intensity_factor = intensity / 255
-                delta_co2 -= intensity_factor * 0.3 * mult["light"]
-
-        # Fans (air drying, CO2 dilution)
-        for fan_key in fan_keys:
-            fan_state = device_states.get(fan_key, {})
-            is_on = fan_state.get("power", False)
-            if fan_key in ["dumb_exhaust", "dumb_intake"]:
-                speed = 10 if is_on else 0
-            else:
-                speed = fan_state.get("speed", 0) if is_on else 0
-            if speed > 0:
-                speed_factor = speed / 10
-                delta_hum -= speed_factor * 0.015 * mult["fan"]
-                delta_co2 -= speed_factor * 0.05 * mult["fan"]
-
-        # Intake fan air exchange with outside
-        intake_state = device_states.get("intake", {})
-        if intake_state.get("power", False):
-            intake_speed = intake_state.get("speed", 10)
-            exchange_rate = 0.05 * (intake_speed / 10)
-            delta_temp += (self.outside_temp - self.environment["air_temperature"]) * exchange_rate
-            delta_hum += (self.outside_hum - self.environment["air_humidity"]) * exchange_rate
-            delta_co2 += (self.outside_co2 - self.environment["co2_level"]) * exchange_rate
-
-        # RH decreases as temperature increases (VPD effect)
-        delta_hum -= delta_temp * 0.3
+        # CO2 (passive, only outside)
+        target_co2 = self.outside_co2
+        delta_co2 = (target_co2 - self.environment["co2_level"]) * approach_rate
 
         # Apply deltas
         self.environment["air_temperature"] += delta_temp
