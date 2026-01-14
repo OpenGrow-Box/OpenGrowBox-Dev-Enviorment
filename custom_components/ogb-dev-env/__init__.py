@@ -38,21 +38,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Forward to platforms
     await hass.config_entries.async_forward_entry_setups(entry, ["sensor", "switch", "light", "fan", "climate", "humidifier", "select"])
 
-    # Force initial states to off for all entities
-    await asyncio.sleep(1)  # Wait for entities to be added
-    for entity_id in hass.states.async_entity_ids():
-        if entity_id.startswith("switch.ogb") or entity_id.startswith("light.ogb") or entity_id.startswith("fan.ogb") or entity_id.startswith("climate.ogb") or entity_id.startswith("humidifier.ogb"):
-            state = hass.states.get(entity_id)
-            if state and state.state != "off":
-                hass.states.async_set(entity_id, "off")
 
-    # Additional delay to override HA state restoration
-    await asyncio.sleep(5)
-    for entity_id in hass.states.async_entity_ids():
-        if entity_id.startswith("switch.ogb") or entity_id.startswith("light.ogb") or entity_id.startswith("fan.ogb") or entity_id.startswith("climate.ogb") or entity_id.startswith("humidifier.ogb"):
-            state = hass.states.get(entity_id)
-            if state and state.state != "off":
-                hass.states.async_set(entity_id, "off")
     return True
 
 
