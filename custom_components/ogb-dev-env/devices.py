@@ -207,17 +207,20 @@ TEST_DEVICES = {
         ]
     },
     "co2": {
-        "name": "DevCO2System",
-        "type": "CO2",
-        "labels": ["CO2"],
+        "name": "Dev CO2 System",
+        "type": "Sensor",
+        "labels": ["Sensor"],
         "manufacturer": "OpenGrowBox",
-        "model": "Dev OGB Environment",
-        "setters": {},
+        "model": "Dev Environment",
+        "setters": {
+            "co2": {"type": "switch", "default": False}
+        },
         "state": {
-            "power": False
+            "power": False,
+            "co2": False
         },
         "sensors": [
-            {"name": "carbondioxide", "unit": "ppm", "value": 950.0}
+            {"name": "co2", "unit": "ppm", "value": 950.0}
         ]
     },
     "dumb_exhaust": {
