@@ -5,6 +5,10 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from random import uniform
 from .const import DOMAIN
+import logging
+
+_LOGGER = logging.getLogger(__name__)
+
 # Import test devices
 from .devices import TEST_DEVICES
 
@@ -70,6 +74,7 @@ class OGBDevSensor(SensorEntity):
         elif sensor_config['name'] == "co2":
             if device_config['device_id'] == "devco2device":
                 self._attr_unique_id = "devco2device_co2"
+                _LOGGER.warning(f"Creating CO2 sensor for device_id '{device_config['device_id']}' with unique_id '{self._attr_unique_id}'")
             else:
                 self._attr_unique_id = "devco2"
 
@@ -80,6 +85,9 @@ class OGBDevSensor(SensorEntity):
             "manufacturer": device_config.get("manufacturer", "OpenGrowBox"),
             "model": device_config.get("model", "Dev Environment"),
         }
+        
+        if device_config['device_id'] == "devco2device":
+            _LOGGER.warning(f"CO2 sensor device_info: {self._attr_device_info}")
 
     @property
     def should_poll(self):

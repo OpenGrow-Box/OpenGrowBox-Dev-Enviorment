@@ -6,6 +6,9 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from .const import DOMAIN
+import logging
+
+_LOGGER = logging.getLogger(__name__)
 
 from .devices import TEST_DEVICES
 
@@ -68,6 +71,7 @@ class OGBDevSwitch(SwitchEntity):
         else:
             if device_config['device_id'] == "devco2device":
                 self._attr_unique_id = "devco2device"
+                _LOGGER.warning(f"Creating CO2 switch for device_id '{device_config['device_id']}' with unique_id '{self._attr_unique_id}'")
             elif device_config['name'] == "Irrigation Dripper":
                 self._attr_unique_id = "dripperirrigation"
             elif "Dumb" in device_config['name']:
@@ -84,6 +88,9 @@ class OGBDevSwitch(SwitchEntity):
             "manufacturer": device_config.get("manufacturer", "OpenGrowBox"),
             "model": device_config.get("model", "Dev Environment"),
         }
+        
+        if device_config['device_id'] == "devco2device":
+            _LOGGER.warning(f"CO2 switch device_info: {self._attr_device_info}")
 
     async def async_added_to_hass(self):
         """Ensure initial state is off."""
@@ -91,6 +98,8 @@ class OGBDevSwitch(SwitchEntity):
         self._attr_is_on = False
         self._hass.states.async_set(self.entity_id, "off")
         self.async_write_ha_state()
+        if self._device_config['device_id'] == "devco2device":
+            _LOGGER.warning(f"CO2 switch added to HA with entity_id: {self.entity_id}, unique_id: {self._attr_unique_id}, device_info: {self._attr_device_info}")
 
     @property
     def is_on(self):
