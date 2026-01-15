@@ -53,6 +53,21 @@ class OGBDevSensor(SensorEntity):
         if sensor_config.get("unit"):
             self._attr_unit_of_measurement = sensor_config["unit"]
 
+        # Special unique_ids
+        if device_config['device_id'] == "sensor_main":
+            if sensor_config['name'] == "illuminance":
+                self._attr_unique_id = "soilsensor_illuminance"
+            elif sensor_config['name'] == "moisture":
+                self._attr_unique_id = "soilsensor_moisture"
+            elif sensor_config['name'] == "conductivity":
+                self._attr_unique_id = "soilsensor_conductivity"
+            elif sensor_config['name'] == "temperature":
+                self._attr_unique_id = "soilsensor_temperature"
+            elif sensor_config['name'] == "soil_temperature":
+                self._attr_unique_id = "soilsensor_soil_temperature"
+        else:
+            self._attr_unique_id = f"{device_config['device_id']}_{sensor_config['name'].lower().replace(' ', '_')}"
+
         # Device info
         self._attr_device_info = {
             "identifiers": {(DOMAIN, device_config["device_id"])},
@@ -122,10 +137,10 @@ class OGBDevSensor(SensorEntity):
             return round(1200.0 + uniform(-50, 50), 2)
         elif sensor_name == "soil_temperature":
             return round(self._state_manager.environment["soil_temperature"], 2)
-        elif sensor_name == "lumen":
+        elif sensor_name == "illuminance":
             light_state = self._state_manager.get_device_state("light_main")
             intensity = light_state.get("intensity", 0) if light_state.get("power", False) else 0
-            return intensity * 10  # Mirror intensity as lumen (0-1000)
+            return intensity * 10  # Mirror intensity as illuminance (0-1000)
         elif sensor_name in ["Far Red PPFD", "Red PPFD", "Blue PPFD", "UV Intensity"]:
             return 100 if self._state_manager.get_device_state(self._device_key).get("power", False) else 0
 

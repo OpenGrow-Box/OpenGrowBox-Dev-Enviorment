@@ -101,7 +101,7 @@ TEST_DEVICES = {
             {"name": "conductivity", "unit": "µS/cm", "value": 1200.0},
             {"name": "temperature", "unit": "°C", "value": 22.0},
             {"name": "soil_temperature", "unit": "°C", "value": 22.0},
-            {"name": "lumen", "unit": "lx", "value": 200.0}
+            {"name": "illuminance", "unit": "lx", "value": 200.0}
         ]
     },
     "heater": {
@@ -320,32 +320,12 @@ TEST_DEVICES = {
             {"name": "level", "unit": "%", "value": 75.0},
             {"name": "temperature", "unit": "°C", "value": 18.0},
             {"name": "ppm", "unit": "ppm", "value": 700.0},
-            {"name": "ec", "unit": "us", "value": 1.5}
+            {"name": "ec", "unit": "us", "value": 1.5},
+            {"name": "ph", "unit": "", "value": 7.0},
+            {"name": "tds", "unit": "ppm", "value": 500.0},
+            {"name": "sal", "unit": "ppt", "value": 0.5},
+            {"name": "orp", "unit": "mV", "value": 300.0}
         ]
-    },
-    "ph_doser": {
-        "name": "DevPhDoser",
-        "type": "pH Doser",
-        "labels": ["Pump"],
-        "manufacturer": "OpenGrowBox",
-        "model": "Dev OGB Environment",
-        "setters": {},
-        "state": {
-            "power": False
-        },
-        "sensors": []
-    },
-    "ec_doser": {
-        "name": "DevECDoser",
-        "type": "EC Doser",
-        "labels": ["Pump"],
-        "manufacturer": "OpenGrowBox",
-        "model": "Dev OGB Environment",
-        "setters": {},
-        "state": {
-            "power": False
-        },
-        "sensors": []
     },
     "feed": {
         "name": "DevFeedSystem",

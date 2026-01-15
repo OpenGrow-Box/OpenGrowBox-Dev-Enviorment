@@ -68,6 +68,8 @@ class OGBDevSwitch(SwitchEntity):
         else:
             if device_config['device_id'] == "co2_switch":
                 self._attr_unique_id = "devco2_switch"
+            elif device_config['name'] == "Irrigation Dripper":
+                self._attr_unique_id = "dripperirrigation"
             elif "Dumb" in device_config['name']:
                 self._attr_unique_id = f"dev{device_config['name'].replace('DevDumb', 'dumb').replace('Fan', '').lower()}"
             else:
