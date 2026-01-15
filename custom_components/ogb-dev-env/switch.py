@@ -75,6 +75,8 @@ class OGBDevSwitch(SwitchEntity):
             if device_config['device_id'] == "devco2device":
                 self._attr_unique_id = "devco2device"
                 _LOGGER.warning(f"Creating CO2 switch for device_id '{device_config['device_id']}' with unique_id '{self._attr_unique_id}'")
+            elif device_config['device_id'] == "devco2system":
+                self._attr_unique_id = "devco2system"
             elif device_config['name'] == "Irrigation Dripper":
                 self._attr_unique_id = "dripperirrigation"
             elif "Dumb" in device_config['name']:
@@ -94,6 +96,8 @@ class OGBDevSwitch(SwitchEntity):
         
         if device_config['device_id'] == "devco2device":
             _LOGGER.warning(f"CO2 switch device_info: {self._attr_device_info}")
+        elif device_config['device_id'] == "devco2system":
+            _LOGGER.warning(f"CO2 System switch device_info: {self._attr_device_info}")
 
     async def async_added_to_hass(self):
         """Ensure initial state is off."""

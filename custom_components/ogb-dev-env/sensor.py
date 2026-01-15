@@ -74,7 +74,8 @@ class OGBDevSensor(SensorEntity):
         elif sensor_config['name'] == "co2":
             if device_config['device_id'] == "devco2device":
                 self._attr_unique_id = "devco2device_co2"
-                _LOGGER.warning(f"Creating CO2 sensor for device_id '{device_config['device_id']}' with unique_id '{self._attr_unique_id}'")
+            elif device_config['device_id'] == "devco2system":
+                self._attr_unique_id = "devco2system_co2"
             else:
                 self._attr_unique_id = "devco2"
 
