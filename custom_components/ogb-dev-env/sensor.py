@@ -54,6 +54,8 @@ class OGBDevSensor(SensorEntity):
             self._attr_unit_of_measurement = sensor_config["unit"]
 
         # Special unique_ids
+        self._attr_unique_id = f"{device_config['device_id']}_{sensor_config['name'].lower().replace(' ', '_')}"
+
         if device_config['device_id'] == "sensor_main":
             if sensor_config['name'] == "illuminance":
                 self._attr_unique_id = "soilsensor_illuminance"
@@ -65,8 +67,8 @@ class OGBDevSensor(SensorEntity):
                 self._attr_unique_id = "soilsensor_temperature"
             elif sensor_config['name'] == "soil_temperature":
                 self._attr_unique_id = "soilsensor_soil_temperature"
-        else:
-            self._attr_unique_id = f"{device_config['device_id']}_{sensor_config['name'].lower().replace(' ', '_')}"
+        elif sensor_config['name'] == "co2":
+            self._attr_unique_id = "devco2"
 
         # Device info
         self._attr_device_info = {
