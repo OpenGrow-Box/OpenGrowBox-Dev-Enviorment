@@ -66,8 +66,8 @@ class OGBDevSwitch(SwitchEntity):
             self._attr_unique_id = f"{device_config['device_id']}_{pump_key}"
             self._attr_name = f"{device_config['name']} {pump_key.replace('feedpump_', '')}"
         else:
-            if device_config['device_id'] == "co2_switch":
-                self._attr_unique_id = "devco2_switch"
+            if device_config['device_id'] == "devco2":
+                self._attr_unique_id = "devco2system"
             elif device_config['name'] == "Irrigation Dripper":
                 self._attr_unique_id = "dripperirrigation"
             elif "Dumb" in device_config['name']:
