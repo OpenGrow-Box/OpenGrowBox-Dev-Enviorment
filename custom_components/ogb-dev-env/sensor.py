@@ -134,15 +134,11 @@ class OGBDevSensor(SensorEntity):
             return round(intensity * 5.3, 2)  # Rough estimate
         elif sensor_name == "duty":
             device_state = self._state_manager.get_device_state(self._device_key)
-            if "percentage" in device_state:
-                return device_state["percentage"]
-            elif "speed" in device_state:
-                speed = device_state.get("speed", 0)
-                return int((speed / 10) * 100)
-            elif "intensity" in device_state:
-                return device_state.get("intensity", 0)
-            else:
-                return 100 if device_state.get("power", False) else 0
+            percentage = device_state.get("percentage")
+            if percentage is not None:
+                return percentage
+            speed = device_state.get("speed", 0)
+            return int((speed / 10) * 100)
         elif sensor_name == "moisture":
             return round(55.0 + uniform(-5, 5), 2)  # Add noise
         elif sensor_name == "conductivity":

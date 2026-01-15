@@ -46,8 +46,11 @@ class OGBDevFan(FanEntity):
         self._attr_name = device_config["name"]
         self._attr_is_on = False
         self._attr_percentage = 0
-        self._attr_supported_features = FanEntityFeature.SET_SPEED | 1 | 2 | 4 | 32
+        self._attr_supported_features = FanEntityFeature.SET_SPEED
         print(f"Creating fan for {device_key}")
+
+        # Initialize percentage in device_state
+        self._state_manager.set_device_state(device_key, "percentage", 0)
 
 
 
