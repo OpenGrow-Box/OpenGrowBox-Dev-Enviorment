@@ -26,8 +26,8 @@ class EnvironmentSimulator:
         self.environment = {
             "air_temperature": season_data["temp"],
             "air_humidity": season_data["hum"],
-            "soil_temperature": 22.0,
-            "co2_level": 950.0,
+            "soil_temperature": 20.0,
+            "co2_level": 600.0,
             "water_level": 75.0,
             "water_temperature": 18.0,
         }
