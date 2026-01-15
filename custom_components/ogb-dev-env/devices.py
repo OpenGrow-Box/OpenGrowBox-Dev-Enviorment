@@ -207,12 +207,12 @@ TEST_DEVICES = {
         ]
     },
     "co2": {
-        "name": "Dev CO2 System",
+        "name": "DevCO2Device",
         "type": "Sensor",
         "labels": ["CO2"],
         "manufacturer": "OpenGrowBox",
         "model": "Dev Environment",
-        "device_id": "devco2",
+        "device_id": "devco2device",
         "setters": {
             "co2": {"type": "switch", "default": False}
         },

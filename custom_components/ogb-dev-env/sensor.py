@@ -68,7 +68,10 @@ class OGBDevSensor(SensorEntity):
             elif sensor_config['name'] == "soil_temperature":
                 self._attr_unique_id = "soilsensor_soil_temperature"
         elif sensor_config['name'] == "co2":
-            self._attr_unique_id = "devco2"
+            if device_config['device_id'] == "devco2device":
+                self._attr_unique_id = "devco2device_co2"
+            else:
+                self._attr_unique_id = "devco2"
 
         # Device info
         self._attr_device_info = {
