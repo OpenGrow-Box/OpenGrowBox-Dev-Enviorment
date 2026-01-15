@@ -207,7 +207,7 @@ TEST_DEVICES = {
         ]
     },
     "co2": {
-        "name": "Dev CO2 System",
+        "name": "devco2",
         "type": "Sensor",
         "labels": ["CO2"],
         "manufacturer": "OpenGrowBox",
