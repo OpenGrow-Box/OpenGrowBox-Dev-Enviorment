@@ -19,7 +19,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     for device_key, device_config in TEST_DEVICES.items():
         # Skip devices that have dedicated entities, but keep cooler and dehumidifier for manual control
-        if device_config.get("type") in ["Exhaust", "Intake", "Sensor", "Air Sensor"]:
+        if device_config.get("type") in ["Exhaust", "Intake", "Air Sensor"]:
+            continue
+        # Skip Sensor types EXCEPT for CO2 device which needs a switch
+        if device_config.get("type") == "Sensor" and device_config.get("device_id") != "devco2device":
             continue
         # For Light type, skip if has setters (handled by light platform), else create switch
         if device_config.get("type") == "Light" and "setters" in device_config and device_config["setters"]:
