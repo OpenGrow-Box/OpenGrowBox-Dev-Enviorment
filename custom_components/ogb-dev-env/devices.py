@@ -52,6 +52,9 @@ TEST_DEVICES = {
         "state": {
             "power": False
         },
+        "sensors": [
+            {"name": "intensity", "unit": "%", "icon": "mdi:brightness-6"}
+        ]
     },
     "light_red": {
         "name": "DevRedLight",
@@ -63,6 +66,9 @@ TEST_DEVICES = {
         "state": {
             "power": False
         },
+        "sensors": [
+            {"name": "intensity", "unit": "%", "icon": "mdi:brightness-6"}
+        ]
     },
     "light_blue": {
         "name": "DevBlueLight",
@@ -74,6 +80,9 @@ TEST_DEVICES = {
         "state": {
             "power": False
         },
+        "sensors": [
+            {"name": "intensity", "unit": "%", "icon": "mdi:brightness-6"}
+        ]
     },
     "light_uv": {
         "name": "DevUVLight",
@@ -85,6 +94,9 @@ TEST_DEVICES = {
         "state": {
             "power": False
         },
+        "sensors": [
+            {"name": "intensity", "unit": "%", "icon": "mdi:brightness-6"}
+        ]
     },
     "sensor_main": {
         "name": "DevSoilSensor",

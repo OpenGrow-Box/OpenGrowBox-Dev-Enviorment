@@ -56,7 +56,7 @@ class EnvironmentSimulator:
         - Outside weather (if available from Home Assistant)
         - Passive approach (gradual movement toward targets)
         """
-        mult = self._get_season_multipliers()[self.season]
+        mult = self._get_season_multipliers()[self.season.split('_')[0]]
 
         # Get seasonal base values with small random variation
         self.ambient_temperature = self._update_ambient_temp()
