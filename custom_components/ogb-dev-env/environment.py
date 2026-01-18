@@ -89,17 +89,17 @@ class EnvironmentSimulator:
         """Calculate humidity changes from devices."""
         hum_change = 0.0
 
-        hum_change -= heat_input * 0.5
-        hum_change -= exhaust_loss * 0.3
-        hum_change += intake_loss * 0.2
+        hum_change -= heat_input * 0.2
+        hum_change -= exhaust_loss * 0.15
+        hum_change += intake_loss * 0.1
 
         humidifier_state = device_states.get("humidifier", {})
         if humidifier_state.get("power", False):
-            hum_change += 3.0
+            hum_change += 1.5
 
         dehumidifier_state = device_states.get("dehumidifier", {})
         if dehumidifier_state.get("power", False):
-            hum_change -= 2.5
+            hum_change -= 1.2
 
         return hum_change
 
