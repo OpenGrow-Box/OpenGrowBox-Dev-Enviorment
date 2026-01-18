@@ -139,22 +139,22 @@ class DevStateManager:
         self.device_states = {}
         self.environment_simulator = EnvironmentSimulator()
         self.environment = self.environment_simulator.environment
-        self._update_task = None
+        self._simulation_task = None
 
     async def async_setup(self):
         """Initialize state manager."""
         for device_key, device_config in TEST_DEVICES.items():
             self.device_states[device_key] = dict(device_config["state"])
 
-        self._update_task = async_track_time_interval(
+        self._simulation_task = async_track_time_interval(
             self.hass, self._async_update_simulation, timedelta(seconds=30)
         )
 
     async def async_unload(self):
         """Unload state manager."""
-        if self._update_task:
-            self._update_task()
-            self._update_task = None
+        if self._simulation_task:
+            self._simulation_task()
+            self._simulation_task = None
 
     async def async_save_states(self):
         """Save current device states to storage."""
@@ -189,7 +189,7 @@ class DevStateManager:
         await self._async_update_simulation(None)
 
     @callback
-    async def _async_update_simulation(self, now):
+    async def _async_update_simulation(self, now=None):
         """Periodic simulation update."""
         weather_data = {"temp": None, "hum": None}
         weather_entity = self.hass.states.get("weather.home")
@@ -212,25 +212,27 @@ class OGBDevCoordinator:
         self.hass = hass
         self.entry = entry
         self.state_manager = state_manager
-        self._update_task = None
+        self._save_task = None
 
     async def async_load_stored_states(self):
         """Load stored states on startup."""
         await self.state_manager.async_load_stored_states()
-        self._update_task = async_track_time_interval(
-            self.hass, self._async_update, timedelta(seconds=30)
+        await self.state_manager.async_setup()
+        self._save_task = async_track_time_interval(
+            self.hass, self._async_save, timedelta(seconds=30)
         )
 
     @callback
-    async def _async_update(self, now=None):
-        """Update simulation."""
+    async def _async_save(self, now=None):
+        """Save states periodically."""
         await self.state_manager.async_save_states()
 
     async def async_shutdown(self):
         """Shutdown coordinator."""
-        if self._update_task:
-            self._update_task()
-            self._update_task = None
+        if self._save_task:
+            self._save_task()
+            self._save_task = None
+        await self.state_manager.async_unload()
         await self.state_manager.async_save_states()
 
 
