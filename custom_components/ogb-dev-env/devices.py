@@ -27,12 +27,13 @@ TEST_DEVICES = {
         "sensors": [
             {"name": "intensity", "unit": "%", "icon": "mdi:brightness-6"},
             {"name": "par", "unit": "µmol/m²/s", "icon": "mdi:white-balance-sunny"},
+            {"name": "duty", "unit": "%", "icon": "mdi:lightbulb"}
         ]
     },
     "dumb_light": {
         "name": "DevDumbLight",
-        "type": "Switch",
-        "labels": ["Switch"],
+        "type": "Light",
+        "labels": ["Light"],
         "manufacturer": "OpenGrowBox",
         "model": "Dev OGB Environment",
         "setters": {},
