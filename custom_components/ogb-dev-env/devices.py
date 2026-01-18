@@ -50,7 +50,8 @@ TEST_DEVICES = {
         "model": "Dev OGB Environment",
         "setters": {},
         "state": {
-            "power": False
+            "power": False,
+            "intensity": 0
         },
         "sensors": [
             {"name": "intensity", "unit": "%", "icon": "mdi:brightness-6"}
@@ -64,7 +65,8 @@ TEST_DEVICES = {
         "model": "Dev OGB Environment",
         "setters": {},
         "state": {
-            "power": False
+            "power": False,
+            "intensity": 0
         },
         "sensors": [
             {"name": "intensity", "unit": "%", "icon": "mdi:brightness-6"}
@@ -78,7 +80,8 @@ TEST_DEVICES = {
         "model": "Dev OGB Environment",
         "setters": {},
         "state": {
-            "power": False
+            "power": False,
+            "intensity": 0
         },
         "sensors": [
             {"name": "intensity", "unit": "%", "icon": "mdi:brightness-6"}
@@ -92,7 +95,8 @@ TEST_DEVICES = {
         "model": "Dev OGB Environment",
         "setters": {},
         "state": {
-            "power": False
+            "power": False,
+            "intensity": 0
         },
         "sensors": [
             {"name": "intensity", "unit": "%", "icon": "mdi:brightness-6"}
