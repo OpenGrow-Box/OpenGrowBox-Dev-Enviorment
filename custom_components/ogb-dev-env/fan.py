@@ -1,6 +1,7 @@
 """OGB Dev fans."""
 import asyncio
 from homeassistant.components.fan import FanEntity, FanEntityFeature
+from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from .const import DOMAIN
@@ -30,7 +31,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     return True
 
 
-class OGBDevFan(FanEntity):
+class OGBDevFan(FanEntity, RestoreEntity):
     """OGB Dev fan."""
 
     def __init__(self, hass, entry, device_config, device_key):
@@ -59,9 +60,12 @@ class OGBDevFan(FanEntity):
     async def async_added_to_hass(self):
         """Restore previous state if available."""
         await super().async_added_to_hass()
-        if (state := await self.async_get_last_state()) is not None:
-            self._attr_is_on = state.state != "off"
-            self._attr_percentage = state.attributes.get("percentage", 0)
+        
+        # Try to restore previous state
+        last_state = self.hass.states.get(self.entity_id)
+        if last_state:
+            self._attr_is_on = last_state.state != "off"
+            self._attr_percentage = last_state.attributes.get("percentage", 0)
             await self._state_manager.set_device_state(self._device_key, "percentage", self._attr_percentage)
             await self._state_manager.set_device_state(self._device_key, "power", self._attr_is_on)
         else:
@@ -69,6 +73,7 @@ class OGBDevFan(FanEntity):
             self._attr_percentage = 0
             await self._state_manager.set_device_state(self._device_key, "percentage", 0)
             await self._state_manager.set_device_state(self._device_key, "power", False)
+        
         self.async_write_ha_state()
 
     @property
