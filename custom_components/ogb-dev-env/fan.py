@@ -57,12 +57,18 @@ class OGBDevFan(FanEntity):
         }
 
     async def async_added_to_hass(self):
-        """Ensure initial state is off."""
+        """Restore previous state if available."""
         await super().async_added_to_hass()
-        self._attr_is_on = False
-        await self._state_manager.set_device_state(self._device_key, "percentage", 0)
-        await self._state_manager.set_device_state(self._device_key, "speed", 0)
-        self._hass.states.async_set(self.entity_id, "off", {"percentage": 0})
+        if (state := await self.async_get_last_state()) is not None:
+            self._attr_is_on = state.state != "off"
+            self._attr_percentage = state.attributes.get("percentage", 0)
+            await self._state_manager.set_device_state(self._device_key, "percentage", self._attr_percentage)
+            await self._state_manager.set_device_state(self._device_key, "power", self._attr_is_on)
+        else:
+            self._attr_is_on = False
+            self._attr_percentage = 0
+            await self._state_manager.set_device_state(self._device_key, "percentage", 0)
+            await self._state_manager.set_device_state(self._device_key, "power", False)
         self.async_write_ha_state()
 
     @property

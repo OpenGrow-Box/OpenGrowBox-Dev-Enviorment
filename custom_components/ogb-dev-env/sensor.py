@@ -141,7 +141,7 @@ class OGBDevSensor(SensorEntity):
             if percentage is not None:
                 return percentage
             speed = device_state.get("speed", 0)
-            return int((speed / 10) * 100)
+            return int(speed * 10)
         elif sensor_name == "moisture":
             return round(55.0 + uniform(-5, 5), 2)
         elif sensor_name == "conductivity":
