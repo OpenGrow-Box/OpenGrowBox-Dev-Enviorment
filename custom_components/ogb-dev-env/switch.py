@@ -1,5 +1,4 @@
 """Switch platform for OGB Dev Environment."""
-
 import asyncio
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.helpers.entity import DeviceInfo
@@ -11,6 +10,7 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 
 from .devices import TEST_DEVICES
+from . import OGBDevRestoreEntity
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
@@ -18,17 +18,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     entities = []
 
     for device_key, device_config in TEST_DEVICES.items():
-        # Skip devices that have dedicated entities, but keep cooler and dehumidifier for manual control
         if device_config.get("type") in ["Exhaust", "Intake", "Air Sensor"]:
             continue
-        # Skip Sensor types EXCEPT for CO2 device which needs a switch
         if device_config.get("type") == "Sensor" and device_config.get("device_id") != "devco2device":
             continue
-        # For Light type, also create switch (in addition to light entity)
         if device_config.get("type") == "Light" and "setters" in device_config and device_config["setters"]:
             continue
         if device_config.get("type") == "Feed":
-            # Create multiple switches for feed pumps
             for pump in ["a", "b", "c", "w", "x", "y", "pp", "pm"]:
                 switch = OGBDevSwitch(
                     hass=hass,
@@ -39,7 +35,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
                 )
                 entities.append(switch)
         else:
-            # Create power switch for each device
             switch = OGBDevSwitch(
                 hass=hass,
                 entry=entry,
@@ -57,8 +52,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     return True
 
 
-class OGBDevSwitch(SwitchEntity):
-    """OGB Dev switch."""
+class OGBDevSwitch(OGBDevRestoreEntity, SwitchEntity):
+    """OGB Dev switch with state restoration."""
 
     def __init__(self, hass, entry, device_config, device_key, pump_key=None):
         self._hass = hass
@@ -68,13 +63,13 @@ class OGBDevSwitch(SwitchEntity):
         self._pump_key = pump_key
         self._state_manager = self._hass.data[DOMAIN][self._entry.entry_id]
         state = self._state_manager.get_device_state(device_key)
+
         if pump_key:
             self._attr_unique_id = f"{device_config['device_id']}_{pump_key}"
             self._attr_name = f"{device_config['name']} {pump_key.replace('feedpump_', '')}"
         else:
             if device_config['device_id'] == "devco2device":
                 self._attr_unique_id = "devco2device"
-                _LOGGER.debug(f"Creating CO2 switch for device_id '{device_config['device_id']}' with unique_id '{self._attr_unique_id}'")
             elif device_config['name'] == "Irrigation Dripper":
                 self._attr_unique_id = "dripperirrigation"
             elif "Dumb" in device_config['name']:
@@ -84,26 +79,26 @@ class OGBDevSwitch(SwitchEntity):
             self._attr_name = f"{device_config['name']}"
         self._attr_is_on = False
 
-        # Device info
         self._attr_device_info = {
             "identifiers": {(DOMAIN, device_config["device_id"])},
             "name": device_config["name"],
             "manufacturer": device_config.get("manufacturer", "OpenGrowBox"),
             "model": device_config.get("model", "Dev Environment"),
         }
-        
-        if device_config['device_id'] == "devco2device":
-            _LOGGER.debug(f"CO2 switch device_info: {self._attr_device_info}")
-
 
     async def async_added_to_hass(self):
-        """Ensure initial state is off."""
+        """Restore state on startup."""
         await super().async_added_to_hass()
-        self._attr_is_on = False
-        self._hass.states.async_set(self.entity_id, "off")
+
+        state_key = self._pump_key or "power"
+        restored = await self._async_restore_device_state(self._device_key, state_key)
+
+        is_on = bool(restored) if restored is not None else False
+
+        await self._state_manager.set_device_state(self._device_key, state_key, is_on)
+        self._attr_is_on = is_on
+        self._hass.states.async_set(self.entity_id, "on" if is_on else "off")
         self.async_write_ha_state()
-        if self._device_config['device_id'] == "devco2device":
-            _LOGGER.debug(f"CO2 switch added to HA with entity_id: {self.entity_id}, unique_id: {self._attr_unique_id}, device_info: {self._attr_device_info}")
 
     @property
     def is_on(self):
@@ -116,10 +111,14 @@ class OGBDevSwitch(SwitchEntity):
         """Turn the switch on."""
         key = self._pump_key or "power"
         await self._state_manager.set_device_state(self._device_key, key, True)
+        self._attr_is_on = True
+        self._hass.states.async_set(self.entity_id, "on")
         self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs):
         """Turn the switch off."""
         key = self._pump_key or "power"
         await self._state_manager.set_device_state(self._device_key, key, False)
+        self._attr_is_on = False
+        self._hass.states.async_set(self.entity_id, "off")
         self.async_write_ha_state()
