@@ -39,8 +39,14 @@ class OGBDevFan(OGBDevRestoreEntity, FanEntity):
         self._entry = entry
         self._device_config = device_config
         self._device_key = device_key
-        self._state_manager = self._hass.data[DOMAIN][self._entry.entry_id]["state_manager"]
-        self._state = self._state_manager.get_device_state(device_key)
+        
+        data_entry = self._hass.data.get(DOMAIN, {}).get(self._entry.entry_id, {})
+        if isinstance(data_entry, dict):
+            self._state_manager = data_entry.get("state_manager")
+        else:
+            self._state_manager = data_entry
+            
+        self._state = self._state_manager.get_device_state(device_key) if self._state_manager else {}
 
         self._attr_unique_id = f"{self._entry.entry_id}_{device_config['device_id']}_fan"
         self._attr_name = device_config["name"]
