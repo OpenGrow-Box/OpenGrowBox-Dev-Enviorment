@@ -48,7 +48,7 @@ class OGBDevLight(OGBDevRestoreEntity, LightEntity):
         self._entry = entry
         self._device_config = device_config
         self._device_key = device_key
-        self._state_manager = self._hass.data[DOMAIN][self._entry.entry_id]
+        self._state_manager = self._hass.data[DOMAIN][self._entry.entry_id]["state_manager"]
         self._state = self._state_manager.get_device_state(device_key)
 
         self._attr_unique_id = f"{self._entry.entry_id}_{device_config['device_id']}_light"
@@ -154,7 +154,7 @@ class OGBDevSpectrumLight(OGBDevRestoreEntity, LightEntity):
         self._entry = entry
         self._device_config = device_config
         self._device_key = device_key
-        self._state_manager = self._hass.data[DOMAIN][self._entry.entry_id]
+        self._state_manager = self._hass.data[DOMAIN][self._entry.entry_id]["state_manager"]
         self._state = self._state_manager.get_device_state(device_key)
 
         self._attr_unique_id = f"{self._entry.entry_id}_{device_config['device_id']}_light"

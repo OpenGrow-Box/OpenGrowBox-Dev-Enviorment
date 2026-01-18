@@ -47,7 +47,7 @@ class OGBDevSensor(SensorEntity):
         self._device_config = device_config
         self._sensor_config = sensor_config
         self._device_key = device_key
-        self._state_manager = self._hass.data[DOMAIN][self._entry.entry_id]
+        self._state_manager = self._hass.data[DOMAIN][self._entry.entry_id]["state_manager"]
 
         # Entity properties
         self._attr_unique_id = f"{device_config['device_id']}_{sensor_config['name'].lower().replace(' ', '_')}"

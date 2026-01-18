@@ -61,7 +61,7 @@ class OGBDevSwitch(OGBDevRestoreEntity, SwitchEntity):
         self._device_config = device_config
         self._device_key = device_key
         self._pump_key = pump_key
-        self._state_manager = self._hass.data[DOMAIN][self._entry.entry_id]
+        self._state_manager = self._hass.data[DOMAIN][self._entry.entry_id]["state_manager"]
         state = self._state_manager.get_device_state(device_key)
 
         if pump_key:

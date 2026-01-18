@@ -29,7 +29,7 @@ class OGBDevSeasonSelect(SelectEntity, RestoreEntity):
     def __init__(self, hass, entry):
         self._hass = hass
         self._entry = entry
-        self._state_manager = self._hass.data[DOMAIN][self._entry.entry_id]
+        self._state_manager = self._hass.data[DOMAIN][self._entry.entry_id]["state_manager"]
         self._current_option = "summer"
 
         # Entity properties

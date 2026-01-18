@@ -33,7 +33,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     state_store = OGBDevStore(hass, entry.entry_id)
 
     state_manager = DevStateManager(hass, entry, state_store)
-    hass.data[DOMAIN][entry.entry_id] = state_manager
+    hass.data[DOMAIN][entry.entry_id] = {"state_manager": state_manager}
 
     device_manager = DevDeviceManager(hass, entry)
     await device_manager.async_setup_devices()
@@ -52,7 +52,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     if entry.entry_id in hass.data.get(DOMAIN, {}):
-        state_manager = hass.data[DOMAIN][entry.entry_id]
+        state_manager = hass.data[DOMAIN][entry.entry_id]["state_manager"]
         await state_manager.async_save_states()
         if "coordinator" in hass.data[DOMAIN][entry.entry_id]:
             await hass.data[DOMAIN][entry.entry_id]["coordinator"].async_shutdown()

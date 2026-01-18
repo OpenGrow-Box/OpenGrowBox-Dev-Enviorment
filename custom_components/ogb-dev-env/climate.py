@@ -34,7 +34,7 @@ class OGBDevClimate(OGBDevRestoreEntity, ClimateEntity):
     def __init__(self, hass, entry):
         self._hass = hass
         self._entry = entry
-        self._state_manager = self._hass.data[DOMAIN][self._entry.entry_id]
+        self._state_manager = self._hass.data[DOMAIN][self._entry.entry_id]["state_manager"]
 
         self._attr_unique_id = "ogb_dev_climate"
         self._attr_name = "OGB Dev Climate Control"
