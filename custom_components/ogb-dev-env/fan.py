@@ -69,12 +69,12 @@ class OGBDevFan(FanEntity):
     @property
     def is_on(self):
         """Return true if fan is on."""
-        return self._state.get("power", False)
+        return self._state_manager.get_device_state(self._device_key).get("power", False)
 
     @property
     def percentage(self):
         """Return the current percentage."""
-        return self._attr_percentage
+        return self._state_manager.get_device_state(self._device_key).get("percentage", 0)
 
 
     async def async_turn_on(self, percentage=None, preset_mode=None, **kwargs):
@@ -94,8 +94,8 @@ class OGBDevFan(FanEntity):
         self._attr_percentage = 0
         self._attr_is_on = False
         self._state = self._state_manager.get_device_state(self._device_key)
-        self._hass.states.async_set(self.entity_id, "off", {"percentage": 0})
         self.async_write_ha_state()
+        self._hass.states.async_set(self.entity_id, "off", {"percentage": 0})
 
     async def async_set_percentage(self, percentage):
         """Set to speed percentage."""
