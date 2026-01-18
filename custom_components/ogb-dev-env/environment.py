@@ -113,10 +113,10 @@ class EnvironmentSimulator:
 
             # Calculate total effective intensity
             total_intensity = main_intensity + additional_lights
-            intensity_factor = min(1.0, total_intensity / 100.0)
+            intensity_factor = min(2.0, total_intensity / 100.0)
 
             # Light heat - applies to both current and target temperature
-            light_heat = 0.30 * intensity_factor * mult["light"]
+            light_heat = 0.8 * intensity_factor * mult["light"]
             target_temp += light_heat
 
         # Exhaust Fan: Pulls ambient air OUT of the grow box
@@ -240,7 +240,7 @@ class EnvironmentSimulator:
         heater_state = device_states.get("heater", {})
         if heater_state.get("power", False):
             heater_power = heater_state.get("power", 1.0) if isinstance(heater_state.get("power"), (int, float)) else 1.0
-            effects["temp_offset"] += 0.25 * heater_power * mult["heater"]
+            effects["temp_offset"] += 1.0 * heater_power * mult["heater"]
             effects["approach_rate_bonus"] += 0.02
 
         # Cooler: Removes heat from the environment
@@ -285,7 +285,7 @@ class EnvironmentSimulator:
                 additional_lights += 100.0
 
             total_intensity = main_intensity + additional_lights
-            intensity_factor = min(1.0, total_intensity / 100.0)
+            intensity_factor = min(2.0, total_intensity / 100.0)
 
             # Plants consume CO2 during photosynthesis
             effects["co2_consumption"] += 30 * intensity_factor * mult["co2"]
