@@ -11,7 +11,6 @@ from homeassistant.const import (
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
 )
-import json
 from .const import DOMAIN
 from .devices import TEST_DEVICES
 from .environment import EnvironmentSimulator
@@ -27,12 +26,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
 
-    if entry.entry_id in hass.data[DOMAIN]:
-        return True
+    data_entry = hass.data[DOMAIN].get(entry.entry_id)
+    if data_entry is not None:
+        if isinstance(data_entry, dict):
+            return True
+        else:
+            del hass.data[DOMAIN][entry.entry_id]
 
     state_store = OGBDevStore(hass, entry.entry_id)
-
     state_manager = DevStateManager(hass, entry, state_store)
+
     hass.data[DOMAIN][entry.entry_id] = {"state_manager": state_manager}
 
     device_manager = DevDeviceManager(hass, entry)
@@ -51,11 +54,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
-    if entry.entry_id in hass.data.get(DOMAIN, {}):
-        state_manager = hass.data[DOMAIN][entry.entry_id]["state_manager"]
-        await state_manager.async_save_states()
-        if "coordinator" in hass.data[DOMAIN][entry.entry_id]:
-            await hass.data[DOMAIN][entry.entry_id]["coordinator"].async_shutdown()
+    data_entry = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+    if isinstance(data_entry, dict):
+        state_manager = data_entry.get("state_manager")
+        if state_manager:
+            await state_manager.async_save_states()
+        coordinator = data_entry.get("coordinator")
+        if coordinator:
+            await coordinator.async_shutdown()
+        del hass.data[DOMAIN][entry.entry_id]
     return await hass.config_entries.async_unload_platforms(
         entry, ["sensor", "switch", "light", "fan", "climate", "humidifier", "select"]
     )
@@ -206,7 +213,6 @@ class OGBDevCoordinator:
         self.entry = entry
         self.state_manager = state_manager
         self._update_task = None
-        self._unsub_setup = None
 
     async def async_load_stored_states(self):
         """Load stored states on startup."""
@@ -251,12 +257,15 @@ class OGBDevRestoreEntity(RestoreEntity):
             if state.state not in (STATE_UNAVAILABLE, STATE_UNKNOWN):
                 try:
                     value = float(state.state)
-                    state_manager = self.hass.data[DOMAIN][self._entry.entry_id]
-                    await state_manager.set_device_state(device_key, state_key, value)
-                    _LOGGER.debug(
-                        f"Restored {device_key}.{state_key} = {value}"
-                    )
-                    return value
+                    data_entry = self.hass.data[DOMAIN][self._entry.entry_id]
+                    if isinstance(data_entry, dict):
+                        state_manager = data_entry.get("state_manager")
+                        if state_manager:
+                            await state_manager.set_device_state(device_key, state_key, value)
+                            _LOGGER.debug(
+                                f"Restored {device_key}.{state_key} = {value}"
+                            )
+                            return value
                 except (ValueError, TypeError):
                     pass
         return None
