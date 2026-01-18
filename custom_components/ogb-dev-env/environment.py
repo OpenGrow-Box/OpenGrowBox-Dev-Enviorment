@@ -56,7 +56,7 @@ class EnvironmentSimulator:
         - Outside weather (if available from Home Assistant)
         - Passive approach (gradual movement toward targets)
         """
-        mult = self._get_season_multipliers()[self.season.split('_')[0]]
+        mult = self._get_season_multipliers()
 
         # Get seasonal base values with small random variation
         self.ambient_temperature = self._update_ambient_temp()
@@ -172,13 +172,30 @@ class EnvironmentSimulator:
         """
         Returns seasonal efficiency multipliers for climate devices.
         These adjust how effective each device type is in different seasons.
+        Base multipliers + dry/wet variants adjust humidifier/dehumidifier effectiveness.
         """
-        return {
+        base_season = self.season.split('_')[0]
+        variant = self.season.split('_')[1] if '_' in self.season else None
+
+        base_mults = {
             "spring": {"heater": 1.0, "cooler": 1.0, "humidifier": 1.0, "dehumidifier": 1.0, "fan": 1.0, "light": 1.0, "co2": 1.0},
             "summer": {"heater": 0.8, "cooler": 1.2, "humidifier": 0.8, "dehumidifier": 1.2, "fan": 1.1, "light": 0.9, "co2": 1.1},
             "fall": {"heater": 1.0, "cooler": 1.0, "humidifier": 1.0, "dehumidifier": 1.0, "fan": 1.0, "light": 1.0, "co2": 1.0},
             "winter": {"heater": 1.5, "cooler": 0.8, "humidifier": 1.2, "dehumidifier": 0.8, "fan": 0.7, "light": 1.3, "co2": 0.9},
         }
+
+        mults = base_mults[base_season].copy()
+
+        if variant == "dry":
+            # Dry air: humidifier less needed, dehumidifier more effective
+            mults["humidifier"] *= 0.7
+            mults["dehumidifier"] *= 1.3
+        elif variant == "wet":
+            # Wet air: humidifier more effective, dehumidifier less needed
+            mults["humidifier"] *= 1.3
+            mults["dehumidifier"] *= 0.7
+
+        return mults
 
     def _update_ambient_temp(self):
         """

@@ -103,54 +103,57 @@ class OGBDevSensor(SensorEntity):
     def native_value(self):
         """Return the current state."""
         sensor_name = self._sensor_config["name"]
+        device_key = self._device_key
+        state_manager = self._state_manager
+
         if sensor_name == "temperature":
-            temp = self._state_manager.environment["air_temperature"]
-            if self._device_key == "air_sensor_2":
+            temp = state_manager.environment["air_temperature"]
+            if device_key == "air_sensor_2":
                 temp += 0.05
-            elif self._device_key == "air_sensor_3":
+            elif device_key == "air_sensor_3":
                 temp += 0.1
             return round(temp, 2)
         elif sensor_name == "humidity":
-            hum = self._state_manager.environment["air_humidity"]
-            if self._device_key == "air_sensor_2":
+            hum = state_manager.environment["air_humidity"]
+            if device_key == "air_sensor_2":
                 hum += 0.5
-            elif self._device_key == "air_sensor_3":
+            elif device_key == "air_sensor_3":
                 hum += 1.0
             return round(hum, 2)
         elif sensor_name == "temperature":
-            if self._device_key == "sensor_main":
-                return round(self._state_manager.environment["soil_temperature"], 2)
+            if device_key == "sensor_main":
+                return round(state_manager.environment["soil_temperature"], 2)
             else:
-                return round(self._state_manager.environment.get("water_temperature", 0), 2)
+                return round(state_manager.environment.get("water_temperature", 0), 2)
         elif sensor_name == "carbondioxide":
-            return round(self._state_manager.environment["co2_level"], 2)
+            return round(state_manager.environment["co2_level"], 2)
         elif sensor_name == "level":
-            return round(self._state_manager.environment["water_level"], 2)
+            return round(state_manager.environment["water_level"], 2)
         elif sensor_name == "intensity":
-            return self._state_manager.get_device_state(self._device_key).get("intensity", 0)
+            device_state = state_manager.get_device_state(device_key)
+            return device_state.get("intensity", 0)
         elif sensor_name == "par":
-            # Simulate PAR based on intensity
-            intensity = self._state_manager.get_device_state(self._device_key).get("intensity", 0)
-            return round(intensity * 5.3, 2)  # Rough estimate
+            intensity = state_manager.get_device_state(device_key).get("intensity", 0)
+            return round(intensity * 5.3, 2)
         elif sensor_name == "duty":
-            device_state = self._state_manager.get_device_state(self._device_key)
+            device_state = state_manager.get_device_state(device_key)
             percentage = device_state.get("percentage")
             if percentage is not None:
                 return percentage
             speed = device_state.get("speed", 0)
             return int((speed / 10) * 100)
         elif sensor_name == "moisture":
-            return round(55.0 + uniform(-5, 5), 2)  # Add noise
+            return round(55.0 + uniform(-5, 5), 2)
         elif sensor_name == "conductivity":
             return round(1200.0 + uniform(-50, 50), 2)
         elif sensor_name == "soil_temperature":
-            return round(self._state_manager.environment["soil_temperature"], 2)
+            return round(state_manager.environment["soil_temperature"], 2)
         elif sensor_name == "illuminance":
-            light_state = self._state_manager.get_device_state("light_main")
+            light_state = state_manager.get_device_state("light_main")
             intensity = light_state.get("intensity", 0) if light_state.get("power", False) else 0
-            return intensity * 10  # Mirror intensity as illuminance (0-1000)
+            return intensity * 10
         elif sensor_name in ["Far Red PPFD", "Red PPFD", "Blue PPFD", "UV Intensity"]:
-            return 100 if self._state_manager.get_device_state(self._device_key).get("power", False) else 0
+            return 100 if state_manager.get_device_state(device_key).get("power", False) else 0
 
         else:
             return self._sensor_config.get("value", 0.0)

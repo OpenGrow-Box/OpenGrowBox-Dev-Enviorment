@@ -107,8 +107,12 @@ class OGBDevLight(LightEntity):
             await self.async_turn_off()
             return
 
+        self._attr_is_on = True
+        self._attr_brightness = int((intensity / 100) * 255)
         await self._state_manager.set_device_state(self._device_key, "power", True)
         await self._state_manager.set_device_state(self._device_key, "intensity", intensity)
+        self._state = self._state_manager.get_device_state(self._device_key)
+        self._hass.states.async_set(self.entity_id, "on", {"brightness": self._attr_brightness})
         self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs):
@@ -117,6 +121,7 @@ class OGBDevLight(LightEntity):
         self._attr_brightness = 0
         await self._state_manager.set_device_state(self._device_key, "power", False)
         await self._state_manager.set_device_state(self._device_key, "intensity", 0)
+        self._state = self._state_manager.get_device_state(self._device_key)
         self._hass.states.async_set(self.entity_id, "off", {"brightness": 0})
         self.async_write_ha_state()
 
@@ -173,6 +178,8 @@ class OGBDevSpectrumLight(LightEntity):
         """Turn the light on."""
         self._attr_is_on = True
         await self._state_manager.set_device_state(self._device_key, "power", True)
+        await self._state_manager.set_device_state(self._device_key, "intensity", 100)
+        self._state = self._state_manager.get_device_state(self._device_key)
         self._hass.states.async_set(self.entity_id, "on")
         self.async_write_ha_state()
 
@@ -180,6 +187,8 @@ class OGBDevSpectrumLight(LightEntity):
         """Turn the light off."""
         self._attr_is_on = False
         await self._state_manager.set_device_state(self._device_key, "power", False)
+        await self._state_manager.set_device_state(self._device_key, "intensity", 0)
+        self._state = self._state_manager.get_device_state(self._device_key)
         self._hass.states.async_set(self.entity_id, "off")
         self.async_write_ha_state()
 

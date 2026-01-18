@@ -101,9 +101,8 @@ class DevStateManager:
 
     async def async_setup(self):
         """Initialize state manager."""
-        # Initialize device states from config
         for device_key, device_config in TEST_DEVICES.items():
-            self.device_states[device_key] = device_config["state"].copy()
+            self.device_states[device_key] = dict(device_config["state"])
 
         # Schedule periodic updates every 30 seconds
         self._update_task = async_track_time_interval(
