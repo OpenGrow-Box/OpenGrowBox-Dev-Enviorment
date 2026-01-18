@@ -7,7 +7,7 @@ from random import uniform
 from .const import DOMAIN
 import logging
 
-_LOGGER = logging.getLogger(__name__)
+_LOGGER = logging.getLogger(__name__ + ".debug")
 
 # Import test devices
 from .devices import TEST_DEVICES
@@ -86,7 +86,7 @@ class OGBDevSensor(SensorEntity):
         }
         
         if device_config['device_id'] == "devco2device":
-            _LOGGER.warning(f"CO2 sensor device_info: {self._attr_device_info}")
+            _LOGGER.debug(f"CO2 sensor device_info: {self._attr_device_info}")
 
     @property
     def should_poll(self):

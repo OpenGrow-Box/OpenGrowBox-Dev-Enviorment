@@ -85,7 +85,7 @@ class DevDeviceManager:
             device_config["device_id"] = device_id
             device_config["registry_device"] = device
 
-            _LOGGER.info(f"Created device: {device_config['name']} ({device_id})")
+            _LOGGER.debug(f"Created device: {device_config['name']} ({device_id})")
 
 
 class DevStateManager:

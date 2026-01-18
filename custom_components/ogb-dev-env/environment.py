@@ -93,6 +93,7 @@ class EnvironmentSimulator:
             light_uv_state.get("power", False)
         )
 
+        light_heat = 0.0
         if any_light_on:
             # Main light intensity
             main_intensity = light_state.get("intensity", 100) if light_state.get("power", False) else 0
@@ -114,9 +115,9 @@ class EnvironmentSimulator:
             total_intensity = main_intensity + additional_lights
             intensity_factor = min(1.0, total_intensity / 100.0)
 
-            # Light heat directly affects current temp (immediate effect)
-            # This causes RH to drop because absolute humidity stays same but temp rises
-            current_temp += 0.20 * intensity_factor * mult["light"]
+            # Light heat - applies to both current and target temperature
+            light_heat = 0.20 * intensity_factor * mult["light"]
+            target_temp += light_heat
 
         # Exhaust Fan: Pulls ambient air OUT of the grow box
         # This reduces the influence of the target, moving toward current box conditions
@@ -249,55 +250,8 @@ class EnvironmentSimulator:
             effects["temp_offset"] -= 0.12 * cooler_power * mult["cooler"]
             effects["approach_rate_bonus"] += 0.02
 
-        # Light: Primary heat source in a grow box
-        # - Lamps emit significant heat (proportional to intensity)
-        # - Plants photosynthesize when light is on, consuming CO2
-        # - Higher light intensity = more heat, more CO2 consumption
-        # - All spectrum lights contribute to photosynthesis
-        light_state = device_states.get("light_main", {})
-        dumb_light_state = device_states.get("dumb_light", {})
-        light_ir_state = device_states.get("light_ir", {})
-        light_red_state = device_states.get("light_red", {})
-        light_blue_state = device_states.get("light_blue", {})
-        light_uv_state = device_states.get("light_uv", {})
-
-        any_light_on = (
-            light_state.get("power", False) or
-            dumb_light_state.get("power", False) or
-            light_ir_state.get("power", False) or
-            light_red_state.get("power", False) or
-            light_blue_state.get("power", False) or
-            light_uv_state.get("power", False)
-        )
-
-        if any_light_on:
-            # Main light intensity
-            main_intensity = light_state.get("intensity", 100) if light_state.get("power", False) else 0
-
-            # Additional lights add to total (each counts as 100% when on)
-            additional_lights = 0.0
-            if dumb_light_state.get("power", False):
-                additional_lights += 100.0
-            if light_ir_state.get("power", False):
-                additional_lights += 100.0
-            if light_red_state.get("power", False):
-                additional_lights += 100.0
-            if light_blue_state.get("power", False):
-                additional_lights += 100.0
-            if light_uv_state.get("power", False):
-                additional_lights += 100.0
-
-            total_intensity = main_intensity + additional_lights
-            intensity_factor = min(1.0, total_intensity / 100.0)
-
-            # Heat from lamps: ~0.2°C per update at full intensity
-            effects["temp_offset"] += 0.20 * intensity_factor * mult["light"]
-
-            # Plants consume CO2 during photosynthesis
-            # All active lights contribute to photosynthesis
-            effects["co2_consumption"] += 20 * intensity_factor * mult["co2"]
-
-            effects["approach_rate_bonus"] += 0.025
+        # Note: Light heat is now calculated directly in update_environment()
+        # (not here) to avoid double-counting with temp_offset
 
         # CO2 Device: Adds CO2 to the environment when active
         co2_device_state = device_states.get("co2", {})
