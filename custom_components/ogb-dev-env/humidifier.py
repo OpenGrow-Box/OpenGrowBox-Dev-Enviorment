@@ -86,8 +86,18 @@ class OGBDevHumidifier(HumidifierEntity):
 
     async def async_turn_on(self, **kwargs):
         """Turn the humidifier on."""
+        target = self._attr_target_humidity
+        current = self.current_humidity
+        if target > current:
+            await self._state_manager.set_device_state("humidifier", "power", True)
+            await self._state_manager.set_device_state("dehumidifier", "power", False)
+        else:
+            await self._state_manager.set_device_state("humidifier", "power", False)
+            await self._state_manager.set_device_state("dehumidifier", "power", True)
         self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs):
         """Turn the humidifier off."""
+        await self._state_manager.set_device_state("humidifier", "power", False)
+        await self._state_manager.set_device_state("dehumidifier", "power", False)
         self.async_write_ha_state()

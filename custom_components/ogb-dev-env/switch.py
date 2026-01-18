@@ -24,7 +24,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         # Skip Sensor types EXCEPT for CO2 device which needs a switch
         if device_config.get("type") == "Sensor" and device_config.get("device_id") != "devco2device":
             continue
-        # For Light type, skip if has setters (handled by light platform), else create switch
+        # For Light type, also create switch (in addition to light entity)
         if device_config.get("type") == "Light" and "setters" in device_config and device_config["setters"]:
             continue
         if device_config.get("type") == "Feed":

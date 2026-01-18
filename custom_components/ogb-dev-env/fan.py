@@ -90,6 +90,8 @@ class OGBDevFan(FanEntity):
         await self._state_manager.set_device_state(self._device_key, "power", False)
         await self._state_manager.set_device_state(self._device_key, "percentage", 0)
         self._attr_percentage = 0
+        self._attr_is_on = False
+        self._hass.states.async_set(self.entity_id, "off", {"percentage": 0})
         self.async_write_ha_state()
 
     async def async_set_percentage(self, percentage):

@@ -12,14 +12,25 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     entities = []
 
     for device_key, device_config in TEST_DEVICES.items():
-        if device_config.get("type") == "Light" and "setters" in device_config and device_config["setters"]:
-            light = OGBDevLight(
-                hass=hass,
-                entry=entry,
-                device_config=device_config,
-                device_key=device_key
-            )
-            entities.append(light)
+        if device_config.get("type") == "Light":
+            if "setters" in device_config and device_config["setters"]:
+                # Main light with brightness control
+                light = OGBDevLight(
+                    hass=hass,
+                    entry=entry,
+                    device_config=device_config,
+                    device_key=device_key
+                )
+                entities.append(light)
+            else:
+                # Spectrum lights (UV, Blue, Red, IR) - on/off only
+                spectrum_light = OGBDevSpectrumLight(
+                    hass=hass,
+                    entry=entry,
+                    device_config=device_config,
+                    device_key=device_key
+                )
+                entities.append(spectrum_light)
 
     if entities:
         async_add_entities(entities)
@@ -64,9 +75,10 @@ class OGBDevLight(LightEntity):
         """Ensure initial state is off."""
         await super().async_added_to_hass()
         self._attr_is_on = False
-        intensity = self._state.get("intensity", 0)
-        self._attr_brightness = int((intensity / 100) * 255)
-        self._hass.states.async_set(self.entity_id, "off", {"brightness": self._attr_brightness})
+        self._attr_brightness = 0
+        await self._state_manager.set_device_state(self._device_key, "power", False)
+        await self._state_manager.set_device_state(self._device_key, "intensity", 0)
+        self._hass.states.async_set(self.entity_id, "off", {"brightness": 0})
         self.async_write_ha_state()
 
     @property
@@ -101,8 +113,74 @@ class OGBDevLight(LightEntity):
 
     async def async_turn_off(self, **kwargs):
         """Turn the light off."""
+        self._attr_is_on = False
+        self._attr_brightness = 0
         await self._state_manager.set_device_state(self._device_key, "power", False)
         await self._state_manager.set_device_state(self._device_key, "intensity", 0)
+        self._hass.states.async_set(self.entity_id, "off", {"brightness": 0})
+        self.async_write_ha_state()
+
+    async def async_toggle(self, **kwargs):
+        """Toggle the light."""
+        if self.is_on:
+            await self.async_turn_off()
+        else:
+            await self.async_turn_on()
+
+
+class OGBDevSpectrumLight(LightEntity):
+    """OGB Dev spectrum light (UV, Blue, Red, IR) - on/off only."""
+
+    def __init__(self, hass, entry, device_config, device_key):
+        self._hass = hass
+        self._entry = entry
+        self._device_config = device_config
+        self._device_key = device_key
+        self._state_manager = self._hass.data[DOMAIN][self._entry.entry_id]
+        self._state = self._state_manager.get_device_state(device_key)
+
+        # Entity properties
+        self._attr_unique_id = f"{self._entry.entry_id}_{device_config['device_id']}_light"
+        self._attr_name = device_config["name"]
+        self._attr_is_on = False
+
+        # Spectrum lights only support on/off
+        self._attr_color_mode = ColorMode.ONOFF
+        self._attr_supported_color_modes = {ColorMode.ONOFF}
+
+        # Device info
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, device_config["device_id"])},
+            "name": device_config["name"],
+            "manufacturer": device_config.get("manufacturer", "OpenGrowBox"),
+            "model": device_config.get("model", "Dev Environment"),
+        }
+
+    async def async_added_to_hass(self):
+        """Ensure initial state is off."""
+        await super().async_added_to_hass()
+        self._attr_is_on = False
+        await self._state_manager.set_device_state(self._device_key, "power", False)
+        self._hass.states.async_set(self.entity_id, "off")
+        self.async_write_ha_state()
+
+    @property
+    def is_on(self):
+        """Return true if light is on."""
+        return self._state.get("power", False)
+
+    async def async_turn_on(self, **kwargs):
+        """Turn the light on."""
+        self._attr_is_on = True
+        await self._state_manager.set_device_state(self._device_key, "power", True)
+        self._hass.states.async_set(self.entity_id, "on")
+        self.async_write_ha_state()
+
+    async def async_turn_off(self, **kwargs):
+        """Turn the light off."""
+        self._attr_is_on = False
+        await self._state_manager.set_device_state(self._device_key, "power", False)
+        self._hass.states.async_set(self.entity_id, "off")
         self.async_write_ha_state()
 
     async def async_toggle(self, **kwargs):

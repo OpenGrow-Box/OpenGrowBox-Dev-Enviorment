@@ -45,7 +45,7 @@ class OGBDevClimate(ClimateEntity):
         self._attr_target_temperature = 23.0
         self._attr_min_temp = 10
         self._attr_max_temp = 50
-        self._attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT, HVACMode.COOL]
+        self._attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT, HVACMode.COOL, HVACMode.DRY]
         self._attr_supported_features = ClimateEntityFeature.TARGET_TEMPERATURE
 
         # Device info - use a virtual device
@@ -81,10 +81,13 @@ class OGBDevClimate(ClimateEntity):
         """Return hvac operation ie. heat, cool mode."""
         heater_state = self._state_manager.get_device_state("heater").get("power", False)
         cooler_state = self._state_manager.get_device_state("cooler").get("power", False)
+        dehumidifier_state = self._state_manager.get_device_state("dehumidifier").get("power", False)
         if heater_state:
             return HVACMode.HEAT
         elif cooler_state:
             return HVACMode.COOL
+        elif dehumidifier_state:
+            return HVACMode.DRY
         else:
             return HVACMode.OFF
 
@@ -96,6 +99,8 @@ class OGBDevClimate(ClimateEntity):
             return HVACAction.HEATING
         elif mode == HVACMode.COOL:
             return HVACAction.COOLING
+        elif mode == HVACMode.DRY:
+            return HVACAction.DRYING
         else:
             return HVACAction.OFF
 
@@ -107,4 +112,20 @@ class OGBDevClimate(ClimateEntity):
 
     async def async_set_hvac_mode(self, hvac_mode):
         """Set new target hvac mode."""
+        if hvac_mode == HVACMode.OFF:
+            await self._state_manager.set_device_state("heater", "power", False)
+            await self._state_manager.set_device_state("cooler", "power", False)
+            await self._state_manager.set_device_state("dehumidifier", "power", False)
+        elif hvac_mode == HVACMode.HEAT:
+            await self._state_manager.set_device_state("heater", "power", True)
+            await self._state_manager.set_device_state("cooler", "power", False)
+            await self._state_manager.set_device_state("dehumidifier", "power", False)
+        elif hvac_mode == HVACMode.COOL:
+            await self._state_manager.set_device_state("heater", "power", False)
+            await self._state_manager.set_device_state("cooler", "power", True)
+            await self._state_manager.set_device_state("dehumidifier", "power", False)
+        elif hvac_mode == HVACMode.DRY:
+            await self._state_manager.set_device_state("heater", "power", False)
+            await self._state_manager.set_device_state("cooler", "power", False)
+            await self._state_manager.set_device_state("dehumidifier", "power", True)
         self.async_write_ha_state()
