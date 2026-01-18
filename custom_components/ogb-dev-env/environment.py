@@ -89,17 +89,17 @@ class EnvironmentSimulator:
         """Calculate humidity changes from devices."""
         hum_change = 0.0
 
-        hum_change -= heat_input * 0.8
-        hum_change -= exhaust_loss * 0.5
-        hum_change += intake_loss * 0.3
+        hum_change -= heat_input * 0.5
+        hum_change -= exhaust_loss * 0.3
+        hum_change += intake_loss * 0.2
 
         humidifier_state = device_states.get("humidifier", {})
         if humidifier_state.get("power", False):
-            hum_change += 5.0
+            hum_change += 3.0
 
         dehumidifier_state = device_states.get("dehumidifier", {})
         if dehumidifier_state.get("power", False):
-            hum_change -= 4.0
+            hum_change -= 2.5
 
         return hum_change
 
@@ -141,7 +141,7 @@ class EnvironmentSimulator:
         total_intensity = main_intensity + additional_lights
         intensity_factor = min(2.0, total_intensity / 100.0)
 
-        return 0.5 * intensity_factor
+        return 0.3 * intensity_factor
 
     def _calculate_heater_heat(self, device_states):
         """Calculate heat input from heater."""
@@ -153,7 +153,7 @@ class EnvironmentSimulator:
         if isinstance(heater_power, bool):
             heater_power = 1.0 if heater_power else 0.0
 
-        return 0.5 * heater_power
+        return 0.3 * heater_power
 
     def _calculate_cooler_heat(self, device_states):
         """Calculate cooling from cooler."""
@@ -165,14 +165,14 @@ class EnvironmentSimulator:
         if isinstance(cooler_power, bool):
             cooler_power = 1.0 if cooler_power else 0.0
 
-        return -0.4 * cooler_power
+        return -0.25 * cooler_power
 
     def _calculate_insulation_loss(self, current_temp):
         """Calculate heat loss through tent insulation (to room)."""
         diff = current_temp - self.room_temp
         if diff <= 0:
             return 0.0
-        return diff * 0.08
+        return diff * 0.05
 
     def _calculate_exhaust_loss(self, device_states, current_temp):
         """Calculate heat loss from exhaust fan (pulls air out to room)."""
@@ -184,7 +184,7 @@ class EnvironmentSimulator:
             return 0.0
 
         exhaust_pct = exhaust_state.get("percentage") if exhaust_state.get("percentage") else 100
-        exhaust_factor = (exhaust_pct / 100) * 0.2
+        exhaust_factor = (exhaust_pct / 100) * 0.12
         diff = current_temp - self.room_temp
         return diff * exhaust_factor
 
@@ -198,7 +198,7 @@ class EnvironmentSimulator:
             return 0.0
 
         intake_pct = intake_state.get("percentage") if intake_state.get("percentage") else 100
-        intake_factor = (intake_pct / 100) * 0.25
+        intake_factor = (intake_pct / 100) * 0.15
         diff = current_temp - self.outside_temp
         return diff * intake_factor
 
