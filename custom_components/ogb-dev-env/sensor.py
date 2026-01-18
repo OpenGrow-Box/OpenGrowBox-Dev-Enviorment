@@ -95,9 +95,9 @@ class OGBDevSensor(SensorEntity):
 
     @property
     def scan_interval(self):
-        """Scan interval for faster sensor updates."""
+        """Scan interval for instant sensor updates."""
         from datetime import timedelta
-        return timedelta(seconds=1)
+        return timedelta(milliseconds=100)
 
     @property
     def native_value(self):
