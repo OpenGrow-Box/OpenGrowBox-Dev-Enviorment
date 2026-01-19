@@ -13,23 +13,27 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     entities = []
 
     for device_key, device_config in TEST_DEVICES.items():
-        if device_config.get("type") == "Light":
-            if "setters" in device_config and device_config["setters"]:
-                light = OGBDevLight(
-                    hass=hass,
-                    entry=entry,
-                    device_config=device_config,
-                    device_key=device_key
-                )
-                entities.append(light)
-            else:
-                spectrum_light = OGBDevSpectrumLight(
-                    hass=hass,
-                    entry=entry,
-                    device_config=device_config,
-                    device_key=device_key
-                )
-                entities.append(spectrum_light)
+        if device_config.get("type") != "Light":
+            continue
+        if device_key == "light_ir":
+            continue
+
+        if "setters" in device_config and device_config["setters"]:
+            light = OGBDevLight(
+                hass=hass,
+                entry=entry,
+                device_config=device_config,
+                device_key=device_key
+            )
+            entities.append(light)
+        else:
+            spectrum_light = OGBDevSpectrumLight(
+                hass=hass,
+                entry=entry,
+                device_config=device_config,
+                device_key=device_key
+            )
+            entities.append(spectrum_light)
 
     if entities:
         async_add_entities(entities)

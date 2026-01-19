@@ -255,19 +255,36 @@ class OGBDevRestoreEntity(RestoreEntity):
 
     async def _async_restore_device_state(self, device_key: str, state_key: str):
         """Restore device state and apply to state manager."""
+        data_entry = self.hass.data[DOMAIN][self._entry.entry_id]
+        if isinstance(data_entry, dict):
+            state_manager = data_entry.get("state_manager")
+        else:
+            state_manager = None
+
+        stored_value = None
+        if state_manager:
+            stored_value = state_manager.get_device_state(device_key).get(state_key)
+
         if state := await self.async_get_last_state():
             if state.state not in (STATE_UNAVAILABLE, STATE_UNKNOWN):
                 try:
                     value = float(state.state)
-                    data_entry = self.hass.data[DOMAIN][self._entry.entry_id]
-                    if isinstance(data_entry, dict):
-                        state_manager = data_entry.get("state_manager")
-                        if state_manager:
-                            await state_manager.set_device_state(device_key, state_key, value)
-                            _LOGGER.debug(
-                                f"Restored {device_key}.{state_key} = {value}"
-                            )
-                            return value
+                    if state_manager:
+                        await state_manager.set_device_state(device_key, state_key, value)
+                        _LOGGER.debug(
+                            f"Restored {device_key}.{state_key} = {value} from HA state"
+                        )
+                    return value
                 except (ValueError, TypeError):
                     pass
+
+        if stored_value is not None:
+            _LOGGER.debug(
+                f"Restored {device_key}.{state_key} = {stored_value} from stored state"
+            )
+            if state_manager:
+                await state_manager.set_device_state(device_key, state_key, stored_value)
+            return stored_value
+
+        _LOGGER.debug(f"No stored state found for {device_key}.{state_key}")
         return None

@@ -22,7 +22,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
             continue
         if device_config.get("type") == "Sensor" and device_config.get("device_id") != "devco2device":
             continue
-        if device_config.get("type") == "Light" and "setters" in device_config and device_config["setters"]:
+        if device_config.get("type") == "Light" and device_config.get("setters"):
+            continue
+        if device_key.startswith("switch_"):
+            pass
+        elif device_config.get("type") == "Light":
             continue
         if device_config.get("type") == "Feed":
             for pump in ["a", "b", "c", "w", "x", "y", "pp", "pm"]:
@@ -55,12 +59,18 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
 class OGBDevSwitch(OGBDevRestoreEntity, SwitchEntity):
     """OGB Dev switch with state restoration."""
 
+    SWITCH_TO_LIGHT_MAP = {
+        "switch_light_ir": "light_ir",
+    }
+
     def __init__(self, hass, entry, device_config, device_key, pump_key=None):
         self._hass = hass
         self._entry = entry
         self._device_config = device_config
         self._device_key = device_key
         self._pump_key = pump_key
+        
+        self._linked_light = self.SWITCH_TO_LIGHT_MAP.get(device_key)
         
         data_entry = self._hass.data.get(DOMAIN, {}).get(self._entry.entry_id, {})
         if isinstance(data_entry, dict):
@@ -74,12 +84,15 @@ class OGBDevSwitch(OGBDevRestoreEntity, SwitchEntity):
             self._attr_unique_id = f"{device_config['device_id']}_{pump_key}"
             self._attr_name = f"{device_config['name']} {pump_key.replace('feedpump_', '')}"
         else:
-            if device_config['device_id'] == "devco2device":
+            if device_config.get("device_id") == "devco2device":
                 self._attr_unique_id = "devco2device"
             elif device_config['name'] == "Irrigation Dripper":
                 self._attr_unique_id = "dripperirrigation"
             elif "Dumb" in device_config['name']:
                 self._attr_unique_id = f"dev{device_config['name'].replace('DevDumb', 'dumb').replace('Fan', '').lower()}"
+            elif device_key.startswith("switch_"):
+                base_name = device_key.replace("switch_", "").replace("_", "").lower()
+                self._attr_unique_id = f"dev{base_name}switch"
             else:
                 self._attr_unique_id = f"dev{device_config['name'].replace('Dev', '').lower()}"
             self._attr_name = f"{device_config['name']}"
@@ -102,6 +115,10 @@ class OGBDevSwitch(OGBDevRestoreEntity, SwitchEntity):
         is_on = bool(restored) if restored is not None else False
 
         await self._state_manager.set_device_state(self._device_key, state_key, is_on)
+        
+        if self._linked_light:
+            await self._state_manager.set_device_state(self._linked_light, "power", is_on)
+        
         self._attr_is_on = is_on
         self._hass.states.async_set(self.entity_id, "on" if is_on else "off")
         self.async_write_ha_state()
@@ -117,6 +134,10 @@ class OGBDevSwitch(OGBDevRestoreEntity, SwitchEntity):
         """Turn the switch on."""
         key = self._pump_key or "power"
         await self._state_manager.set_device_state(self._device_key, key, True)
+        
+        if self._linked_light:
+            await self._state_manager.set_device_state(self._linked_light, "power", True)
+        
         self._attr_is_on = True
         self._hass.states.async_set(self.entity_id, "on")
         self.async_write_ha_state()
@@ -125,6 +146,10 @@ class OGBDevSwitch(OGBDevRestoreEntity, SwitchEntity):
         """Turn the switch off."""
         key = self._pump_key or "power"
         await self._state_manager.set_device_state(self._device_key, key, False)
+        
+        if self._linked_light:
+            await self._state_manager.set_device_state(self._linked_light, "power", False)
+        
         self._attr_is_on = False
         self._hass.states.async_set(self.entity_id, "off")
         self.async_write_ha_state()

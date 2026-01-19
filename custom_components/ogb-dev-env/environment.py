@@ -46,17 +46,25 @@ class EnvironmentSimulator:
         self.season = season
         self._apply_season()
 
+    def _update_room_conditions(self):
+        """Update room temperature and humidity based on outside conditions."""
+        drift_factor = 0.01
+        self.room_temp += (self.outside_temp - self.room_temp) * drift_factor
+        self.room_hum += (self.outside_hum - self.room_hum) * drift_factor
+
     def update_environment(self, device_states, weather_data=None):
         """
         Main update function - calculates new environment values based on:
-        - Room temperature (where the tent is located)
         - Outside temperature (what intake fan brings in)
+        - Room temperature (where the tent is located, drifts to outside)
         - Device heat input (light, heater) accumulates over time
         - Heat loss through insulation and fan air exchange
         """
         if weather_data and weather_data.get("temp") is not None:
             self.outside_temp = weather_data["temp"] + uniform(-2.0, 2.0)
             self.outside_hum = max(20, min(100, weather_data.get("hum", 50) + uniform(-5.0, 5.0)))
+
+        self._update_room_conditions()
 
         current_temp = self.environment["air_temperature"]
         current_hum = self.environment["air_humidity"]
@@ -74,7 +82,12 @@ class EnvironmentSimulator:
         new_temp = current_temp + total_heat_input - insulation_loss - exhaust_loss - intake_loss
         new_hum = current_hum + self._calculate_humidity_effects(device_states, total_heat_input, exhaust_loss, intake_loss)
 
-        self._apply_ventilation_mixing(device_states, current_temp, new_hum)
+        self._apply_ventilation_mixing(device_states, new_temp, new_hum)
+        self._update_soil_temperature(new_temp)
+        self._update_water_level(device_states, light_heat)
+
+        new_temp = self.environment["air_temperature"]
+        new_hum = self.environment["air_humidity"]
 
         new_temp = max(5, min(50, new_temp + uniform(-0.1, 0.1)))
         new_hum = max(20, min(98, new_hum + uniform(-0.2, 0.2)))
@@ -85,21 +98,42 @@ class EnvironmentSimulator:
 
         return self.environment.copy()
 
+    def _update_soil_temperature(self, air_temp):
+        """Soil temperature slowly follows air temperature."""
+        soil_change = (air_temp - self.environment["soil_temperature"]) * 0.02
+        self.environment["soil_temperature"] += soil_change
+
+    def _update_water_level(self, device_states, light_heat):
+        """Water level decreases slowly when lights are on (transpiration/evaporation)."""
+        light_state = device_states.get("light_main", {})
+        if light_state.get("power", False):
+            self.environment["water_level"] -= 0.05
+
     def _calculate_humidity_effects(self, device_states, heat_input, exhaust_loss, intake_loss):
         """Calculate humidity changes from devices."""
+        current_hum = self.environment["air_humidity"]
+
         hum_change = 0.0
 
         hum_change -= heat_input * 0.2
-        hum_change -= exhaust_loss * 0.15
-        hum_change += intake_loss * 0.1
+
+        exhaust_state = device_states.get("exhaust", {})
+        dumb_exhaust_state = device_states.get("dumb_exhaust", {})
+        exhaust_power = exhaust_state.get("power", False) or dumb_exhaust_state.get("power", False)
+        if exhaust_power:
+            exhaust_pct = exhaust_state.get("percentage") if exhaust_state.get("percentage") else 100
+            hum_change -= exhaust_pct * 0.003
+
+        hum_change += intake_loss * (self.outside_hum - current_hum) / 100
+        hum_change -= 0.1
 
         humidifier_state = device_states.get("humidifier", {})
         if humidifier_state.get("power", False):
-            hum_change += 1.5
+            hum_change += 0.5
 
         dehumidifier_state = device_states.get("dehumidifier", {})
         if dehumidifier_state.get("power", False):
-            hum_change -= 1.2
+            hum_change -= 0.8
 
         return hum_change
 
@@ -141,7 +175,7 @@ class EnvironmentSimulator:
         total_intensity = main_intensity + additional_lights
         intensity_factor = min(2.0, total_intensity / 100.0)
 
-        return 0.3 * intensity_factor
+        return 0.5 * intensity_factor
 
     def _calculate_heater_heat(self, device_states):
         """Calculate heat input from heater."""
@@ -153,7 +187,7 @@ class EnvironmentSimulator:
         if isinstance(heater_power, bool):
             heater_power = 1.0 if heater_power else 0.0
 
-        return 0.3 * heater_power
+        return 0.5 * heater_power
 
     def _calculate_cooler_heat(self, device_states):
         """Calculate cooling from cooler."""
@@ -172,7 +206,7 @@ class EnvironmentSimulator:
         diff = current_temp - self.room_temp
         if diff <= 0:
             return 0.0
-        return diff * 0.05
+        return diff * 0.04
 
     def _calculate_exhaust_loss(self, device_states, current_temp):
         """Calculate heat loss from exhaust fan (pulls air out to room)."""
@@ -184,7 +218,7 @@ class EnvironmentSimulator:
             return 0.0
 
         exhaust_pct = exhaust_state.get("percentage") if exhaust_state.get("percentage") else 100
-        exhaust_factor = (exhaust_pct / 100) * 0.12
+        exhaust_factor = (exhaust_pct / 100) * 0.10
         diff = current_temp - self.room_temp
         return diff * exhaust_factor
 
@@ -198,7 +232,7 @@ class EnvironmentSimulator:
             return 0.0
 
         intake_pct = intake_state.get("percentage") if intake_state.get("percentage") else 100
-        intake_factor = (intake_pct / 100) * 0.15
+        intake_factor = (intake_pct / 100) * 0.12
         diff = current_temp - self.outside_temp
         return diff * intake_factor
 
@@ -209,9 +243,9 @@ class EnvironmentSimulator:
             return
 
         vent_pct = vent_state.get("percentage", 100)
-        if vent_pct >= 50:
-            self.environment["air_temperature"] = (self.environment["air_temperature"] + current_temp) / 2
-            self.environment["air_humidity"] = (self.environment["air_humidity"] + current_hum) / 2
+        mix_factor = (vent_pct / 100) * 0.3
+        self.environment["air_temperature"] = self.environment["air_temperature"] * (1 - mix_factor) + current_temp * mix_factor
+        self.environment["air_humidity"] = self.environment["air_humidity"] * (1 - mix_factor) + current_hum * mix_factor
 
     def _update_co2_level(self, device_states):
         """Update CO2 level based on plants and devices."""
@@ -235,7 +269,7 @@ class EnvironmentSimulator:
         intake_power = intake_state.get("power", False) or dumb_intake_state.get("power", False)
         if intake_power:
             intake_pct = intake_state.get("percentage") if intake_state.get("percentage") else 100
-            intake_factor = (intake_pct / 100) * 0.15
+            intake_factor = (intake_pct / 100) * 0.12
             current_co2 = current_co2 * (1 - intake_factor) + outside_co2 * intake_factor
 
         current_co2 = current_co2 * 0.99 + outside_co2 * 0.01

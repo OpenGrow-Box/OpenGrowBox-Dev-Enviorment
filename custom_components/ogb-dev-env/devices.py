@@ -57,6 +57,18 @@ TEST_DEVICES = {
             {"name": "intensity", "unit": "%", "icon": "mdi:brightness-6"}
         ]
     },
+    "switch_light_ir": {
+        "name": "DevFarRedLightSwitch",
+        "type": "Switch",
+        "labels": ["Switch"],
+        "manufacturer": "OpenGrowBox",
+        "model": "Dev OGB Environment",
+        "setters": {},
+        "state": {
+            "power": False
+        },
+        "sensors": []
+    },
     "light_red": {
         "name": "DevRedLight",
         "type": "Light",
