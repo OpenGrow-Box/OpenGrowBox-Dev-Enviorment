@@ -15,8 +15,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     for device_key, device_config in TEST_DEVICES.items():
         if device_config.get("type") != "Light":
             continue
-        if device_key == "light_ir":
-            continue
 
         if "setters" in device_config and device_config["setters"]:
             light = OGBDevLight(
