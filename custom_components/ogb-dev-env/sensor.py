@@ -3,6 +3,7 @@
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.event import async_track_state_change_event
 from random import uniform
 from .const import DOMAIN
 import logging
@@ -47,6 +48,7 @@ class OGBDevSensor(SensorEntity):
         self._device_config = device_config
         self._sensor_config = sensor_config
         self._device_key = device_key
+        self._unsub_listener = None
         
         data_entry = self._hass.data.get(DOMAIN, {}).get(self._entry.entry_id, {})
         if isinstance(data_entry, dict):
@@ -54,15 +56,12 @@ class OGBDevSensor(SensorEntity):
         else:
             self._state_manager = data_entry
 
-        # Entity properties
         self._attr_unique_id = f"{device_config['device_id']}_{sensor_config['name'].lower().replace(' ', '_')}"
         self._attr_name = f"{device_config['name']} {sensor_config['name']}"
 
-        # Sensor properties
         if sensor_config.get("unit"):
             self._attr_unit_of_measurement = sensor_config["unit"]
 
-        # Special unique_ids
         self._attr_unique_id = f"{device_config['device_id']}_{sensor_config['name'].lower().replace(' ', '_')}"
 
         if device_config['device_id'] == "sensor_main":
@@ -82,7 +81,6 @@ class OGBDevSensor(SensorEntity):
             else:
                 self._attr_unique_id = "devco2"
 
-        # Device info
         self._attr_device_info = {
             "identifiers": {(DOMAIN, device_config["device_id"])},
             "name": device_config["name"],
@@ -93,16 +91,55 @@ class OGBDevSensor(SensorEntity):
         if device_config['device_id'] == "devco2device":
             _LOGGER.debug(f"CO2 sensor device_info: {self._attr_device_info}")
 
+    async def async_added_to_hass(self):
+        """Register state change listener when entity is added."""
+        await super().async_added_to_hass()
+        
+        sensor_name = self._sensor_config["name"]
+        tracked_entities = []
+        
+        if sensor_name in ["intensity", "par"]:
+            entity_id = f"light.{self._device_config['device_id']}"
+            tracked_entities.append(entity_id)
+        elif sensor_name in ["duty"]:
+            entity_id = f"fan.{self._device_config['device_id']}"
+            tracked_entities.append(entity_id)
+        elif sensor_name == "illuminance":
+            tracked_entities.append("light.devmainlight")
+        elif sensor_name in ["Far Red PPFD", "Red PPFD", "Blue PPFD", "UV Intensity"]:
+            entity_id = f"light.{self._device_config['device_id']}"
+            tracked_entities.append(entity_id)
+        
+        if tracked_entities:
+            _LOGGER.debug(f"Registering state listener for {self.entity_id} to track: {tracked_entities}")
+            self._unsub_listener = async_track_state_change_event(
+                self._hass, tracked_entities, self._handle_state_change
+            )
+
+    async def async_will_remove_from_hass(self):
+        """Clean up listener when entity is removed."""
+        if self._unsub_listener:
+            self._unsub_listener()
+            self._unsub_listener = None
+        await super().async_will_remove_from_hass()
+
+    async def _handle_state_change(self, event):
+        """Handle state change events from tracked entities."""
+        self.async_write_ha_state()
+
     @property
     def should_poll(self):
-        """Enable polling for sensor updates."""
+        """Poll for environment sensors, not for light/fan attribute sensors."""
+        sensor_name = self._sensor_config["name"]
+        if sensor_name in ["intensity", "par", "duty", "illuminance", "Far Red PPFD", "Red PPFD", "Blue PPFD", "UV Intensity"]:
+            return False
         return True
 
     @property
     def scan_interval(self):
-        """Scan interval for instant sensor updates."""
+        """Scan interval for environment sensors."""
         from datetime import timedelta
-        return timedelta(milliseconds=100)
+        return timedelta(seconds=5)
 
     @property
     def native_value(self):
@@ -135,18 +172,51 @@ class OGBDevSensor(SensorEntity):
         elif sensor_name == "level":
             return round(state_manager.environment["water_level"], 2)
         elif sensor_name == "intensity":
-            device_state = state_manager.get_device_state(device_key)
-            return device_state.get("intensity", 0)
+            entity_id = f"light.{self._device_config['device_id']}"
+            light_state = self._hass.states.get(entity_id)
+            if light_state:
+                return light_state.attributes.get("intensity", 0)
+            return 0
         elif sensor_name == "par":
-            intensity = state_manager.get_device_state(device_key).get("intensity", 0)
-            return round(intensity * 5.3, 2)
+            entity_id = f"light.{self._device_config['device_id']}"
+            light_state = self._hass.states.get(entity_id)
+            if light_state:
+                intensity = light_state.attributes.get("intensity", 0)
+                return round(intensity * 5.3, 2)
+            return 0
         elif sensor_name == "duty":
-            device_state = state_manager.get_device_state(device_key)
-            percentage = device_state.get("percentage")
-            if percentage is not None:
-                return percentage
-            speed = device_state.get("speed", 0)
-            return int((speed / 10) * 100)
+            entity_id = f"fan.{self._device_config['device_id']}"
+            fan_state = self._hass.states.get(entity_id)
+            if fan_state:
+                return fan_state.attributes.get("duty", 0)
+            return 0
+        elif sensor_name == "illuminance":
+            entity_id = "light.devmainlight"
+            light_state = self._hass.states.get(entity_id)
+            if light_state:
+                intensity = light_state.attributes.get("intensity", 0)
+                power = light_state.state == "on"
+                return intensity * 10 if power else 0
+            return 0
+        elif sensor_name in ["Far Red PPFD", "Red PPFD", "Blue PPFD", "UV Intensity"]:
+            entity_id = f"light.{self._device_config['device_id']}"
+            light_state = self._hass.states.get(entity_id)
+            if light_state:
+                return 100 if light_state.state == "on" else 0
+            return 0
+        elif sensor_name == "par":
+            entity_id = f"light.{self._device_config['device_id']}_light"
+            light_state = self._hass.states.get(entity_id)
+            if light_state:
+                intensity = light_state.attributes.get("intensity", 0)
+                return round(intensity * 5.3, 2)
+            return 0
+        elif sensor_name == "duty":
+            entity_id = f"fan.{self._device_config['device_id']}_fan"
+            fan_state = self._hass.states.get(entity_id)
+            if fan_state:
+                return fan_state.attributes.get("duty", 0)
+            return 0
         elif sensor_name == "moisture":
             return round(55.0 + uniform(-5, 5), 2)
         elif sensor_name == "conductivity":
@@ -154,11 +224,19 @@ class OGBDevSensor(SensorEntity):
         elif sensor_name == "soil_temperature":
             return round(state_manager.environment["soil_temperature"], 2)
         elif sensor_name == "illuminance":
-            light_state = state_manager.get_device_state("light_main")
-            intensity = light_state.get("intensity", 0) if light_state.get("power", False) else 0
-            return intensity * 10
+            entity_id = "light.devmainlight_light"
+            light_state = self._hass.states.get(entity_id)
+            if light_state:
+                intensity = light_state.attributes.get("intensity", 0)
+                power = light_state.state == "on"
+                return intensity * 10 if power else 0
+            return 0
         elif sensor_name in ["Far Red PPFD", "Red PPFD", "Blue PPFD", "UV Intensity"]:
-            return 100 if state_manager.get_device_state(device_key).get("power", False) else 0
+            entity_id = f"light.{self._device_config['device_id']}_light"
+            light_state = self._hass.states.get(entity_id)
+            if light_state:
+                return 100 if light_state.state == "on" else 0
+            return 0
 
         else:
             return self._sensor_config.get("value", 0.0)
